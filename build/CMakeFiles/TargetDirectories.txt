@@ -1,0 +1,4 @@
+/home/wei/git_repos/RISCV_Emulator/build/CMakeFiles/edit_cache.dir
+/home/wei/git_repos/RISCV_Emulator/build/CMakeFiles/rebuild_cache.dir
+/home/wei/git_repos/RISCV_Emulator/build/CMakeFiles/ALISS_TEST.dir
+/home/wei/git_repos/RISCV_Emulator/build/CMakeFiles/ALISS.dir
