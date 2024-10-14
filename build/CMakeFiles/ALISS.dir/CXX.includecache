@@ -9,4 +9,8 @@
 /home/wei/git_repos/RISCV_Emulator/src/main.cpp
 stdio.h
 -
+stdlib.h
+-
+iostream
+-
 

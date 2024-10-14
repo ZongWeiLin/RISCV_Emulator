@@ -5,12 +5,10 @@ project(ALISS)
 find_package(GTest REQUIRED)
 set(CMAKE_CXX_STANDARD 11)
 
-##Set Project root path
-set(Proj /home/wei/git_repos/RISCV_Emulator)
 
-set(SOURCE_FILES ${Proj}/src/main.cpp)
+set(SOURCE_FILES src/main.cpp)
 
-set(TEST_FILES ${Proj}/src/test_main.cpp)
+set(TEST_FILES src/test_main.cpp)
 
 add_executable(ALISS ${SOURCE_FILES})
 add_executable(ALISS_TEST ${TEST_FILES})
