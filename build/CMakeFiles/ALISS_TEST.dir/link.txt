@@ -1,1 +1,1 @@
-/usr/bin/c++    -rdynamic CMakeFiles/ALISS_TEST.dir/src/test_main.cpp.o  -o ALISS_TEST  -lgtest /usr/local/lib/libgtest_main.a /usr/local/lib/libgtest.a -lpthread 
+/usr/bin/c++    -rdynamic CMakeFiles/ALISS_TEST.dir/src/test/test_main.cpp.o  -o ALISS_TEST  -lgtest /usr/local/lib/libgtest_main.a /usr/local/lib/libgtest.a -lpthread 

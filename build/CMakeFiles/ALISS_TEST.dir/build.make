@@ -57,27 +57,27 @@ include CMakeFiles/ALISS_TEST.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/ALISS_TEST.dir/flags.make
 
-CMakeFiles/ALISS_TEST.dir/src/test_main.cpp.o: CMakeFiles/ALISS_TEST.dir/flags.make
-CMakeFiles/ALISS_TEST.dir/src/test_main.cpp.o: ../src/test_main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wei/git_repos/RISCV_Emulator/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/ALISS_TEST.dir/src/test_main.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ALISS_TEST.dir/src/test_main.cpp.o -c /home/wei/git_repos/RISCV_Emulator/src/test_main.cpp
+CMakeFiles/ALISS_TEST.dir/src/test/test_main.cpp.o: CMakeFiles/ALISS_TEST.dir/flags.make
+CMakeFiles/ALISS_TEST.dir/src/test/test_main.cpp.o: ../src/test/test_main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wei/git_repos/RISCV_Emulator/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/ALISS_TEST.dir/src/test/test_main.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ALISS_TEST.dir/src/test/test_main.cpp.o -c /home/wei/git_repos/RISCV_Emulator/src/test/test_main.cpp
 
-CMakeFiles/ALISS_TEST.dir/src/test_main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ALISS_TEST.dir/src/test_main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/wei/git_repos/RISCV_Emulator/src/test_main.cpp > CMakeFiles/ALISS_TEST.dir/src/test_main.cpp.i
+CMakeFiles/ALISS_TEST.dir/src/test/test_main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ALISS_TEST.dir/src/test/test_main.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/wei/git_repos/RISCV_Emulator/src/test/test_main.cpp > CMakeFiles/ALISS_TEST.dir/src/test/test_main.cpp.i
 
-CMakeFiles/ALISS_TEST.dir/src/test_main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ALISS_TEST.dir/src/test_main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/wei/git_repos/RISCV_Emulator/src/test_main.cpp -o CMakeFiles/ALISS_TEST.dir/src/test_main.cpp.s
+CMakeFiles/ALISS_TEST.dir/src/test/test_main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ALISS_TEST.dir/src/test/test_main.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/wei/git_repos/RISCV_Emulator/src/test/test_main.cpp -o CMakeFiles/ALISS_TEST.dir/src/test/test_main.cpp.s
 
 # Object files for target ALISS_TEST
 ALISS_TEST_OBJECTS = \
-"CMakeFiles/ALISS_TEST.dir/src/test_main.cpp.o"
+"CMakeFiles/ALISS_TEST.dir/src/test/test_main.cpp.o"
 
 # External object files for target ALISS_TEST
 ALISS_TEST_EXTERNAL_OBJECTS =
 
-ALISS_TEST: CMakeFiles/ALISS_TEST.dir/src/test_main.cpp.o
+ALISS_TEST: CMakeFiles/ALISS_TEST.dir/src/test/test_main.cpp.o
 ALISS_TEST: CMakeFiles/ALISS_TEST.dir/build.make
 ALISS_TEST: /usr/local/lib/libgtest_main.a
 ALISS_TEST: /usr/local/lib/libgtest.a
