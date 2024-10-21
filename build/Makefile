@@ -136,6 +136,36 @@ ALISS/fast:
 	$(MAKE) -f CMakeFiles/ALISS.dir/build.make CMakeFiles/ALISS.dir/build
 .PHONY : ALISS/fast
 
+src/ALISS.o: src/ALISS.cpp.o
+
+.PHONY : src/ALISS.o
+
+# target to build an object file
+src/ALISS.cpp.o:
+	$(MAKE) -f CMakeFiles/ALISS_TEST.dir/build.make CMakeFiles/ALISS_TEST.dir/src/ALISS.cpp.o
+	$(MAKE) -f CMakeFiles/ALISS.dir/build.make CMakeFiles/ALISS.dir/src/ALISS.cpp.o
+.PHONY : src/ALISS.cpp.o
+
+src/ALISS.i: src/ALISS.cpp.i
+
+.PHONY : src/ALISS.i
+
+# target to preprocess a source file
+src/ALISS.cpp.i:
+	$(MAKE) -f CMakeFiles/ALISS_TEST.dir/build.make CMakeFiles/ALISS_TEST.dir/src/ALISS.cpp.i
+	$(MAKE) -f CMakeFiles/ALISS.dir/build.make CMakeFiles/ALISS.dir/src/ALISS.cpp.i
+.PHONY : src/ALISS.cpp.i
+
+src/ALISS.s: src/ALISS.cpp.s
+
+.PHONY : src/ALISS.s
+
+# target to generate assembly for a file
+src/ALISS.cpp.s:
+	$(MAKE) -f CMakeFiles/ALISS_TEST.dir/build.make CMakeFiles/ALISS_TEST.dir/src/ALISS.cpp.s
+	$(MAKE) -f CMakeFiles/ALISS.dir/build.make CMakeFiles/ALISS.dir/src/ALISS.cpp.s
+.PHONY : src/ALISS.cpp.s
+
 src/main.o: src/main.cpp.o
 
 .PHONY : src/main.o
@@ -200,6 +230,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... ALISS_TEST"
 	@echo "... ALISS"
+	@echo "... src/ALISS.o"
+	@echo "... src/ALISS.i"
+	@echo "... src/ALISS.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

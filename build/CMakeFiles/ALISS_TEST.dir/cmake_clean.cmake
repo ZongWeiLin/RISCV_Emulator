@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "ALISS_TEST"
   "ALISS_TEST.pdb"
+  "CMakeFiles/ALISS_TEST.dir/src/ALISS.cpp.o"
   "CMakeFiles/ALISS_TEST.dir/src/test/test_main.cpp.o"
 )
 

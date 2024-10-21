@@ -1,1 +1,1 @@
-/usr/bin/c++    -rdynamic CMakeFiles/ALISS.dir/src/main.cpp.o  -o ALISS 
+/usr/bin/c++    -rdynamic CMakeFiles/ALISS.dir/src/ALISS.cpp.o CMakeFiles/ALISS.dir/src/main.cpp.o  -o ALISS 
