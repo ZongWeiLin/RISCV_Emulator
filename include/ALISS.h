@@ -8,9 +8,12 @@
 #include<cstring>
 #include<elf.h>
 
+#define MEMORY_SIZE 64*1024*1024 //64MB
+
 namespace ALISS
 {
     extern uint32_t pc;//program counter
+    extern uint8_t memory[MEMORY_SIZE];
 
     void loadElf(const char* filename);
 } // namespace ALISS

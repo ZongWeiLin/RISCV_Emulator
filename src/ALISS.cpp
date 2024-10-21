@@ -3,6 +3,7 @@
 namespace ALISS
 {
     uint32_t pc = 0; // initial program counter
+    uint8_t memory[MEMORY_SIZE];
 }
 
 
@@ -35,6 +36,28 @@ void ALISS::loadElf(const char* filename)
     // Get the entry point address
     Elf64_Addr entryPoint = elfHeader.e_entry;
     ALISS::pc = entryPoint;
+
+
+    for (int i = 0; i < elfHeader.e_phnum; i++) {
+        file.seekg(elfHeader.e_phoff + i * sizeof(Elf64_Phdr));
+
+        Elf64_Phdr programHeader;
+        file.read(reinterpret_cast<char*>(&programHeader), sizeof(Elf64_Phdr));
+
+        // Check if this is a loadable segment
+        if (programHeader.p_type == PT_LOAD) {
+            // Save flags, address, and size
+            Elf64_Word flags = programHeader.p_flags;
+            Elf64_Addr addr = programHeader.p_vaddr;
+            Elf64_Xword size = programHeader.p_memsz;
+
+            // Seek to the segment's file offset
+            file.seekg(programHeader.p_offset);
+
+            // Read the segment data to memory
+            file.read(reinterpret_cast<char*>(ALISS::memory + addr), size);
+        }
+    }
     
     // Add more code here to load and work with program segments, sections, etc.
     file.close();
