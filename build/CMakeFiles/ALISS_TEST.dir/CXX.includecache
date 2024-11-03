@@ -9,6 +9,8 @@
 /home/wei/git_repos/RISCV_Emulator/include/ALISS.h
 iostream
 -
+memory
+-
 fstream
 -
 stdio.h
@@ -19,6 +21,10 @@ cstring
 -
 elf.h
 -
+
+/home/wei/git_repos/RISCV_Emulator/src/ALISS.cpp
+../include/ALISS.h
+/home/wei/git_repos/RISCV_Emulator/include/ALISS.h
 
 /home/wei/git_repos/RISCV_Emulator/src/test/test_main.cpp
 gtest/gtest.h

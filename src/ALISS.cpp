@@ -1,13 +1,22 @@
 #include"../include/ALISS.h"
 
-namespace ALISS
+
+//ALISS_CPU
+
+//Constructor
+ALISS_CPU::ALISS_CPU(uint32_t memory_size)
 {
-    uint32_t pc = 0; // initial program counter
-    uint8_t memory[MEMORY_SIZE];
+    pc=0;//initialize program counter
+    memory = new char[memory_size];//Assign CPU memory
 }
 
+//
+ALISS_CPU::~ALISS_CPU()
+{
+    delete memory;
+}
 
-void ALISS::loadElf(const char* filename)
+void ALISS_CPU::loadElf(const char* filename)
 {
     // ELF loader function
     std::ifstream file(filename, std::ios::binary);
@@ -35,7 +44,7 @@ void ALISS::loadElf(const char* filename)
     }
     // Get the entry point address
     Elf64_Addr entryPoint = elfHeader.e_entry;
-    ALISS::pc = entryPoint;
+    pc = entryPoint;
 
 
     for (int i = 0; i < elfHeader.e_phnum; i++) {
@@ -55,7 +64,7 @@ void ALISS::loadElf(const char* filename)
             file.seekg(programHeader.p_offset);
 
             // Read the segment data to memory
-            file.read(reinterpret_cast<char*>(ALISS::memory + addr), size);
+            file.read(reinterpret_cast<char*>(memory + addr), size);
         }
     }
     
@@ -63,4 +72,10 @@ void ALISS::loadElf(const char* filename)
     file.close();
 	return;
 }
+
+uint32_t ALISS_CPU::get_mem_w(uint32_t addr)
+{
+    return *(uint32_t*)(memory + addr);
+}
+
 

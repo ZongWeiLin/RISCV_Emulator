@@ -9,6 +9,8 @@
 /home/wei/git_repos/RISCV_Emulator/include/ALISS.h
 iostream
 -
+memory
+-
 fstream
 -
 stdio.h

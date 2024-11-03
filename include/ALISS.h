@@ -2,6 +2,7 @@
 #define ALISS_H
 
 #include<iostream>
+#include<memory>
 #include<fstream>
 #include<stdio.h>
 #include<stdlib.h>
@@ -10,12 +11,19 @@
 
 #define MEMORY_SIZE 64*1024*1024 //64MB
 
-namespace ALISS
+class ALISS_CPU
 {
-    extern uint32_t pc;//program counter
-    extern uint8_t memory[MEMORY_SIZE];
+private:
+    /* data */
+public:
+    uint32_t pc;
+    char *memory;
+
+    ALISS_CPU(uint32_t memory_size);
+    ~ALISS_CPU();
 
     void loadElf(const char* filename);
-} // namespace ALISS
+    uint32_t get_mem_w(uint32_t addr);
+};
 
 #endif
