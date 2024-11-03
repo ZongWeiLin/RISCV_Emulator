@@ -24,5 +24,15 @@ TEST(MyTestSuite, ELFLoaderTestLoad) {
     const char* test = "../RISCV_elf/hello_world.elf";
     ALISS_CPU Simulator=ALISS_CPU(MEMORY_SIZE);
     Simulator.loadElf(test);
-    EXPECT_EQ(Simulator.get_mem_w(0x1014e),0x3197);
+    // EXPECT_EQ(Simulator.get_mem_w(0x1014e),0x3197);
+}
+
+                /*IT Day14*/
+/*Test Instruction Fetch*/
+
+TEST(MyTestSuite, InstFetchTest) {
+    const char* test = "../RISCV_elf/hello_world.elf";
+    ALISS_CPU Simulator=ALISS_CPU(MEMORY_SIZE);
+    Simulator.loadElf(test);
+    EXPECT_EQ(Simulator.Instruction_Fetch(),0x3197);
 }

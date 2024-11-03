@@ -78,4 +78,15 @@ uint32_t ALISS_CPU::get_mem_w(uint32_t addr)
     return *(uint32_t*)(memory + addr);
 }
 
+uint32_t ALISS_CPU::Instruction_Fetch(void)
+{
+    return get_mem_w(pc);
+}
+
+void ALISS_CPU::Instruction_Decode_Execution_WriteBack(uint32_t insn)
+{
+    ////implement insn here
+    next_pc=pc+4;
+}
+
 
