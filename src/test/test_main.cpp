@@ -36,3 +36,31 @@ TEST(MyTestSuite, InstFetchTest) {
     Simulator.loadElf(test);
     EXPECT_EQ(Simulator.Instruction_Fetch(),0x3197);
 }
+
+/*Test Run Pipe*/
+TEST(MyTestSuite, PCNextTest) {
+    const char* test = "../RISCV_elf/hello_world.elf";
+    ALISS_CPU Simulator=ALISS_CPU(MEMORY_SIZE);
+    Simulator.loadElf(test);
+    Simulator.run_pipe();
+    EXPECT_EQ(Simulator.pc,0x10152);
+}
+
+/*IT Day17 R-Type Add Function*/
+TEST(MyTestSuite, ADD0) {
+    ALISS_CPU Simulator=ALISS_CPU(MEMORY_SIZE);
+    Simulator.reg[11] = 3;
+    Simulator.reg[12] = 7;
+    uint32_t insn = 0x00c58533; // add a0 a1 a2
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.reg[10], 0xa); //3 + 7 = 10
+}
+
+TEST(MyTestSuite, ADD1) {
+    ALISS_CPU Simulator=ALISS_CPU(MEMORY_SIZE);
+    Simulator.reg[10] = 0xffffffffffffffff;
+    Simulator.reg[12] = 0x01;
+    uint32_t insn = 0x00c505b3; // add a1 a0 a2
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.reg[11], 0); //3 + 7 = 10
+}

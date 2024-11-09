@@ -85,8 +85,109 @@ uint32_t ALISS_CPU::Instruction_Fetch(void)
 
 void ALISS_CPU::Instruction_Decode_Execution_WriteBack(uint32_t insn)
 {
+    riscv_ins n_ins;
+    n_ins.wIns = insn;
+    uint8_t opcode_val = n_ins.wIns & 0x7f;
+
+    switch (opcode_val)
+    {
+        case 0x33: //OP-R type
+            Op_R_Type_Implement(insn);
+            break;
+        
+        default:
+            break;
+    }
+    
+
     ////implement insn here
     next_pc=pc+4;
 }
 
+void ALISS_CPU::run_pipe(void)
+{
+    uint32_t ins = Instruction_Fetch();
+    Instruction_Decode_Execution_WriteBack(ins);
 
+    pc=next_pc;//jump to next instruction
+}
+
+void ALISS_CPU:: Op_R_Type_Implement (uint32_t insn)
+{
+    riscv_ins r_ins;
+    r_ins.wIns=insn;
+    
+    uint8_t funct3 = r_ins.r_Ins.funct3;
+    uint8_t funct7 = r_ins.r_Ins.funct7;
+    uint64_t rd = r_ins.r_Ins.rd;
+    uint64_t rs1 = r_ins.r_Ins.rs1;
+    uint64_t rs2 = r_ins.r_Ins.rs2;
+
+
+    switch (funct3)//funct 3 decode to determine operation
+    {
+    case 0x0:
+        switch (funct7)//funct 7 decode to determine +/-
+        {
+            case 0x0 :
+            {
+                reg[rd] =  reg[rs1] + reg[rs2];
+                break;
+            }
+            case 0x20 :
+            {
+                reg[rd] = reg[rs1] - reg[rs2];
+                break;
+            }
+            default:
+            {
+                printf("no insn or not implement :");
+                printf("%d\n",(insn >> 25) & 0x7f);
+                break;
+            }
+        }
+        break;
+    case 0x1: //SLL
+        reg[rd] = reg[rs1] << reg[rs2];
+        break;
+    case 0x2: //SLT
+        reg[rd] = ((int64_t)reg[rs1] < (int64_t)reg[rs2]);
+        break;
+    case 0x3: //SLTU
+        reg[rd] = (reg[rs1] < reg[rs2]);
+        break;
+    case 0x4: //XOR
+        reg[rd] = reg[rs1] ^ reg[rs2];
+        break;
+    case 0x5: //SRL or SRA
+        switch (funct7)
+        {
+            case 0x0 : //SRL
+            {
+                reg[rd] =  reg[rs1] >> reg[rs2];
+                break;
+            }
+            case 0x20 : //SRA
+            {
+                reg[rd] = (int64_t)reg[rs1] >> reg[rs2];
+                break;
+            }
+            default:
+            {
+                printf("no insn or not implement :");
+                printf("%d\n",(insn >> 25) & 0x7f);
+                break;
+            }
+        }
+        break;
+    case 0x6: //OR
+        reg[rd] = reg[rs1] | reg[rs2];
+        break;
+    case 0x7: //AND
+        reg[rd] = reg[rs1] & reg[rs2];
+        break;
+    default:
+        printf("no insn or not implement :");
+        break;
+    }
+}

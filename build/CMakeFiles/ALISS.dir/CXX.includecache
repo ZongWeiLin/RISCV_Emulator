@@ -21,6 +21,10 @@ cstring
 -
 elf.h
 -
+../include/Ins.h
+/home/wei/git_repos/RISCV_Emulator/include/Ins.h
+
+/home/wei/git_repos/RISCV_Emulator/include/Ins.h
 
 /home/wei/git_repos/RISCV_Emulator/src/ALISS.cpp
 ../include/ALISS.h
