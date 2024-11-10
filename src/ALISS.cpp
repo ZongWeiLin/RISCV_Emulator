@@ -4,6 +4,12 @@
 //ALISS_CPU
 
 //Constructor
+ALISS_CPU::ALISS_CPU()
+{
+    pc = 0;//initialize program counter
+    memory = NULL;//initialize memory address
+}
+
 ALISS_CPU::ALISS_CPU(uint32_t memory_size)
 {
     pc=0;//initialize program counter
@@ -13,7 +19,10 @@ ALISS_CPU::ALISS_CPU(uint32_t memory_size)
 //
 ALISS_CPU::~ALISS_CPU()
 {
-    delete memory;
+    if (memory != NULL)
+    {
+        delete memory;
+    }
 }
 
 void ALISS_CPU::loadElf(const char* filename)
@@ -116,7 +125,7 @@ void ALISS_CPU:: Op_R_Type_Implement (uint32_t insn)
 {
     riscv_ins r_ins;
     r_ins.wIns=insn;
-    
+
     uint8_t funct3 = r_ins.r_Ins.funct3;
     uint8_t funct7 = r_ins.r_Ins.funct7;
     uint64_t rd = r_ins.r_Ins.rd;

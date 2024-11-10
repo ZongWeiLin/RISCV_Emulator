@@ -4,12 +4,12 @@
 
 typedef struct R_Type
 {
-    unsigned int op_code :7;
-    unsigned int rd :5;
-    unsigned int funct3 :3;
-    unsigned int rs1 :5;
-    unsigned int rs2 :5;
-    unsigned int funct7 :7;
+    unsigned int op_code :7;//bit [6:0]
+    unsigned int rd :5;//bit[11:7]
+    unsigned int funct3 :3;//bit[14:12]
+    unsigned int rs1 :5;//bit[19:15]
+    unsigned int rs2 :5;//bit[24:20]
+    unsigned int funct7 :7;//bit[31:25]
 }r_type_ins;
 
 

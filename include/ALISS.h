@@ -22,6 +22,7 @@ public:
     uint64_t reg[32];
     char *memory;
 
+    ALISS_CPU();
     ALISS_CPU(uint32_t memory_size);
     ~ALISS_CPU();
 
