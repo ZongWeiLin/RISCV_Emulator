@@ -7,7 +7,7 @@ TEST(MyTestSuite, MyTestCase) {
 
                 /*IT Day12*/
 /*Test lf entry point address load function*/
-
+#if (BUILD_LEVLEL == 12)
 TEST(MyTestSuite, ELFLoaderTestEntryPoint) {
     const char* test = "../RISCV_elf/hello_world.elf";
 
@@ -15,21 +15,23 @@ TEST(MyTestSuite, ELFLoaderTestEntryPoint) {
     Simulator.loadElf(test);
     EXPECT_EQ(Simulator.pc,0x1014e);
 }
+#endif
 
 
                 /*IT Day13*/
 /*Test get load adress memory value*/
-
+#if (BUILD_LEVLEL == 13)
 TEST(MyTestSuite, ELFLoaderTestLoad) {
     const char* test = "../RISCV_elf/hello_world.elf";
     ALISS_CPU Simulator=ALISS_CPU(MEMORY_SIZE);
     Simulator.loadElf(test);
     // EXPECT_EQ(Simulator.get_mem_w(0x1014e),0x3197);
 }
+#endif
 
                 /*IT Day14*/
 /*Test Instruction Fetch*/
-
+#if (BUILD_LEVLEL == 14)
 TEST(MyTestSuite, InstFetchTest) {
     const char* test = "../RISCV_elf/hello_world.elf";
     ALISS_CPU Simulator=ALISS_CPU(MEMORY_SIZE);
@@ -45,8 +47,10 @@ TEST(MyTestSuite, PCNextTest) {
     Simulator.run_pipe();
     EXPECT_EQ(Simulator.pc,0x10152);
 }
+#endif
 
-/*IT Day17 R-Type Add Function*/
+/*IT Day17 Add R-Type Instruction*/
+#if (BUILD_LEVLEL == 17)
 TEST(MyTestSuite, ADD0) {
     ALISS_CPU Simulator=ALISS_CPU();
     Simulator.reg[11] = 3;
@@ -82,4 +86,71 @@ TEST(MyTestSuite, SLL)
     Simulator.Instruction_Decode_Execution_WriteBack(insn);
     EXPECT_EQ(Simulator.reg[10], 64); // 16<<2
 }
+#endif
 
+/*ITDay 18 Add I-Type Instruction*/
+#if (BUILD_LEVLEL == 18)
+TEST(MyTestSuite, ADDI0)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.reg[11] = 3;
+    uint32_t insn = 0x00758513;// addi a0 a1 7
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.reg[10], 0xa); // 3+7=10
+}
+
+TEST(MyTestSuite, ADDI1)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.reg[10] = 0xffffffffffffffff;
+    uint32_t insn = 0x00150593;// addi a1 a0 1
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.reg[11], 0); // 1+-1=0
+}
+
+TEST(MyTestSuite, SLL_1_7)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.reg[10] = 0x01;
+    riscv_ins sll_ins;
+    sll_ins.i_Ins.op_code = 0x13;
+    sll_ins.i_Ins.rs1 = 10;
+    sll_ins.i_Ins.rd =  11;
+    sll_ins.i_Ins.imm = 7;
+    sll_ins.i_Ins.funct3 = 0x01;
+    
+    Simulator.Instruction_Decode_Execution_WriteBack(sll_ins.wIns);
+    EXPECT_EQ(Simulator.reg[11], 0x80); // 1 << 7
+}
+
+TEST(MyTestSuite, SLTI_N1_f)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.reg[10] = (int64_t)-1;
+    riscv_ins sll_ins;
+    sll_ins.i_Ins.op_code = 0x13;
+    sll_ins.i_Ins.rs1 = 10;
+    sll_ins.i_Ins.rd =  11;
+    sll_ins.i_Ins.imm = 0xf;
+    sll_ins.i_Ins.funct3 = 0x02;
+    
+    Simulator.Instruction_Decode_Execution_WriteBack(sll_ins.wIns);
+    EXPECT_EQ(Simulator.reg[11], 1); // -1 < f (True)
+}
+
+TEST(MyTestSuite, SLTI_f_1)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.reg[10] = 0xf;
+    riscv_ins sll_ins;
+    sll_ins.i_Ins.op_code = 0x13;
+    sll_ins.i_Ins.rs1 = 10;
+    sll_ins.i_Ins.rd =  11;
+    sll_ins.i_Ins.imm = 0x1;
+    sll_ins.i_Ins.funct3 = 0x02;
+    
+    Simulator.Instruction_Decode_Execution_WriteBack(sll_ins.wIns);
+    EXPECT_EQ(Simulator.reg[11], 0); // f < 1 (False)
+}
+
+#endif

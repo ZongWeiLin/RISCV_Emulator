@@ -87,6 +87,11 @@ uint32_t ALISS_CPU::get_mem_w(uint32_t addr)
     return *(uint32_t*)(memory + addr);
 }
 
+int64_t ALISS_CPU::set_sign_extension(uint64_t input,int lens)
+{
+    return ((int64_t)input<<(64-lens))>>(64-lens);
+}
+
 uint32_t ALISS_CPU::Instruction_Fetch(void)
 {
     return get_mem_w(pc);
@@ -103,7 +108,9 @@ void ALISS_CPU::Instruction_Decode_Execution_WriteBack(uint32_t insn)
         case 0x33: //OP-R type
             Op_R_Type_Implement(insn);
             break;
-        
+        case 0x13: //OP-I type
+            Op_I_Type_Implement(insn);
+            break;
         default:
             break;
     }
@@ -199,4 +206,87 @@ void ALISS_CPU:: Op_R_Type_Implement (uint32_t insn)
         printf("no insn or not implement :");
         break;
     }
+}
+
+void ALISS_CPU::Op_I_Type_Implement(uint32_t insn)
+{
+    riscv_ins i_ins;
+    i_ins.wIns = insn;
+
+    /*Get instruction field value*/
+    uint8_t funct3 = i_ins.i_Ins.funct3;
+    uint64_t imm = i_ins.i_Ins.imm;
+    uint64_t rd = i_ins.i_Ins.rd;
+    uint64_t rs1 = i_ins.i_Ins.rs1;
+
+    switch (funct3)
+    {
+    case 0x0: //ADDI
+    {
+        reg[rd] =  reg[rs1] +  set_sign_extension(imm, 12);
+        break;
+    }
+    case 0x1: //SLLI
+    {
+        uint64_t shamt = imm & 0x1f; //[24:20]
+        reg[rd] = reg[rs1] << shamt;
+        break;
+    }
+    case 0x2: //SLTI
+    {
+        
+        reg[rd] = ((int64_t)reg[rs1] < set_sign_extension(imm, 12));
+        break;
+    }
+    case 0x3: //SLTUI
+    {
+        reg[rd] = (reg[rs1] < imm);
+        break;
+    }
+    case 0x4: //XORI
+    {
+        reg[rd] = (reg[rs1] ^ set_sign_extension(imm, 12));
+        break;
+    }
+    case 0x5: //SRLI & SRAI
+    {
+        uint64_t shamt = imm & 0x1f; //[24:20]
+        switch ((insn >> 25) & 0x7f)
+        {
+            case 0x0 : //SRLI
+            {
+                reg[rd] =  reg[rs1] >> shamt;
+                break;
+            }
+            case 0x20 : //SRAI
+            {
+                reg[rd] =  (int64_t)reg[rs1] >> shamt;
+                break;
+            }
+            default:
+            {
+                printf("Illegal instruction");
+                printf("%x\n",insn);
+                break;
+            }
+        }
+        break;
+    }
+    case 0x6: //ORI
+    {
+        reg[rd] = (reg[rs1] | set_sign_extension(imm, 12));
+        break;
+    }
+    case 0x7: //ANDI
+    {
+        reg[rd] = (reg[rs1] & set_sign_extension(imm, 12));
+        break;
+    }
+    default:
+    {
+        printf("Illegal instruction");
+        printf("%x\n",insn);
+        break;
+    }
+    } 
 }
