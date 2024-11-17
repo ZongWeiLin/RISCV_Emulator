@@ -103,6 +103,10 @@ void ALISS_CPU::Instruction_Decode_Execution_WriteBack(uint32_t insn)
     n_ins.wIns = insn;
     uint8_t opcode_val = n_ins.wIns & 0x7f;
 
+    //fetch next command to pc
+    next_pc=pc+4;
+
+    ////implement insn here
     switch (opcode_val)
     {
         case 0x33: //OP-R type
@@ -111,13 +115,18 @@ void ALISS_CPU::Instruction_Decode_Execution_WriteBack(uint32_t insn)
         case 0x13: //OP-I type
             Op_I_Type_Implement(insn);
             break;
+        case 0x63://branch ins
+            Op_B_Type_Implement(insn);
+            break;
+        case 0x67://JALR
+            Op_JALR_Ins_Implement(insn);
+            break;
+        case 0x6f://JAL
+            Op_JAL_Ins_Implement(insn);
+            break;
         default:
             break;
     }
-    
-
-    ////implement insn here
-    next_pc=pc+4;
 }
 
 void ALISS_CPU::run_pipe(void)
@@ -289,4 +298,90 @@ void ALISS_CPU::Op_I_Type_Implement(uint32_t insn)
         break;
     }
     } 
+}
+
+void ALISS_CPU::Op_JAL_Ins_Implement(uint32_t insn)
+{
+    riscv_ins jal_ins;//JAL is J-Type Ins;
+    jal_ins.wIns = insn;
+    uint8_t rd = jal_ins.j_Ins.rd;
+    uint64_t imm = ((jal_ins.j_Ins.imm_1_to_10<<1)|
+                    (jal_ins.j_Ins.imm_11<<11) |
+                    (jal_ins.j_Ins.imm_12_to_19<<12)|
+                    (jal_ins.j_Ins.imm_20<<20));
+
+
+    reg[rd] = pc + 4;
+    next_pc = pc + set_sign_extension(imm,21);
+}
+
+void ALISS_CPU::Op_JALR_Ins_Implement(uint32_t insn)
+{
+    riscv_ins jalr_ins;
+    jalr_ins.wIns = insn;
+    uint8_t rs1 = jalr_ins.i_Ins.rs1;
+    uint8_t rd = jalr_ins.i_Ins.rd;
+    uint64_t offset = jalr_ins.i_Ins.imm;
+
+    reg[rd] = pc + 4;
+    next_pc = reg[rs1] + set_sign_extension(offset,12);
+}
+
+void ALISS_CPU::Op_B_Type_Implement(uint32_t insn)
+{
+    riscv_ins b_ins;
+    b_ins.wIns = insn;
+    uint8_t rs1 = b_ins.b_Ins.rs1;
+    uint8_t rs2 = b_ins.b_Ins.rs2;
+    uint8_t funct3 = b_ins.b_Ins.funct3;
+    uint64_t imm = ( (b_ins.b_Ins.imm_1_to_4<<1)|
+                        (b_ins.b_Ins.imm_5_to_10<<5)|
+                        (b_ins.b_Ins.imm_11<<11)|
+                        (b_ins.b_Ins.imm_12<<12));
+    switch (funct3)
+    {
+        case 0: //BEQ
+        {
+            if(reg[rs1] == reg[rs2])
+                next_pc = pc + set_sign_extension(imm,13);
+            break;
+        }
+        case 1: //BNE
+        {
+            if(reg[rs1] != reg[rs2])
+                next_pc = pc + set_sign_extension(imm,13);
+            break;
+        }
+        case 4: //BLT
+        {
+            if((int64_t)reg[rs1] < (int64_t)reg[rs2])
+                next_pc = pc + set_sign_extension(imm,13);
+            break;
+        }
+        case 5: //BGE
+        {
+            if((int64_t)reg[rs1] >= (int64_t)reg[rs2])
+                next_pc = pc + set_sign_extension(imm,13);
+            break;
+        }
+        case 6: //BLTU
+        {
+            if(reg[rs1] < reg[rs2])
+                next_pc = pc + set_sign_extension(imm,13);
+            break;
+        }
+        case 7: //BGEU
+        {
+            if(reg[rs1] >= reg[rs2])
+                next_pc = pc + set_sign_extension(imm,13);
+            break;
+        }
+        default:
+        {
+            printf("Illegal instruction");
+            printf("%x\n",insn);
+            break;
+        }
+    }
+
 }

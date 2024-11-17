@@ -154,3 +154,106 @@ TEST(MyTestSuite, SLTI_f_1)
 }
 
 #endif
+
+/*ITDay 19 Add I-Type Instruction*/
+#if (BUILD_LEVLEL == 19)
+TEST(ISATESTSuite, JALR_0x100_0x50)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.pc = 0x100;
+
+    Simulator.reg[10] = 0x0;
+    Simulator.reg[11] = 0x100;
+    uint32_t insn = 0xf8058567; // jalr a0, -128(a1)
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.reg[10], 0x104 ); //return address = 104;
+    EXPECT_EQ(Simulator.next_pc, 0x80 ); //pc = 0x80;
+}
+
+TEST(ISATESTSuite, JAL_0x100_0x50)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.pc = 0x100;
+
+    Simulator.reg[10] = 0x0;
+    uint32_t insn = 0xf81ff56f; // jal a0, -128
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.reg[10], 0x104 ); //return address = 104;
+    EXPECT_EQ(Simulator.next_pc, 0x80 ); //pc = 0x80;
+}
+
+
+TEST(ISATESTSuite, BEQ_0x100_N128)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.pc = 0x100;
+
+    Simulator.reg[10] = 0x1234;
+    Simulator.reg[11] = 0x1234;
+    uint32_t insn = 0xf8b500e3; // beq a0, a1, -128
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.next_pc, 0x80 ); //pc = 0x80;
+}
+
+TEST(ISATESTSuite, BNE_0x100_N128)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.pc = 0x100;
+
+    Simulator.reg[10]= 0x1234;
+    Simulator.reg[11] = 0x5678;
+    uint32_t insn = 0xf8b510e3; // bne a0, a1, -128
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.next_pc, 0x80 ); //pc = 0x80;
+}
+
+TEST(ISATESTSuite, BLT_0x100_N128)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.pc = 0x100;
+
+    Simulator.reg[10] = 0x1234;
+    Simulator.reg[11] = 0x5678;
+    uint32_t insn = 0xf8b540e3; // blt a0, a1, -128
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.next_pc, 0x80 ); //pc = 0x80;
+}
+
+TEST(ISATESTSuite, BGE_0x100_N128)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.pc = 0x100;
+
+    Simulator.reg[10] = 0x1234;
+    Simulator.reg[11] = 0x1234;
+    uint32_t insn = 0xf8b550e3; // bge a0, a1, -128
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.next_pc, 0x80 ); //pc = 0x80;
+}
+
+TEST(ISATESTSuite, BLTU_0x100_N128)//less than
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.pc = 0x100;
+
+    Simulator.reg[10] = 0x5678;
+    Simulator.reg[11] = -1;
+    uint32_t insn = 0xf8b560e3; // bltu a0, a1, -128
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.next_pc, 0x80 ); //pc = 0x80;
+}
+
+
+TEST(ISATESTSuite, BGEU_0x100_N128)//greater or equal
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.pc = 0x100;
+
+    Simulator.reg[10] = -1;
+    Simulator.reg[11] = 0x1234;
+    uint32_t insn = 0xf8b570e3; // bgeu a0, a1, -128
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.next_pc, 0x80 ); //pc = 0x80;
+}
+
+#endif

@@ -10,7 +10,7 @@
 #include<elf.h>
 #include"../include/Ins.h"
 
-#define BUILD_LEVLEL 18
+#define BUILD_LEVLEL 19
 
 #define MEMORY_SIZE 64*1024*1024 //64MB
 
@@ -36,6 +36,9 @@ public:
     void run_pipe(void);
     void Op_R_Type_Implement(uint32_t insn);
     void Op_I_Type_Implement(uint32_t insn);
+    void Op_B_Type_Implement(uint32_t insn);
+    void Op_JAL_Ins_Implement(uint32_t insn);
+    void Op_JALR_Ins_Implement(uint32_t insn);
 };
 
 #endif
