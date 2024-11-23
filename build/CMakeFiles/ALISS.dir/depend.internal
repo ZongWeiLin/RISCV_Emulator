@@ -4,6 +4,7 @@
 CMakeFiles/ALISS.dir/src/ALISS.cpp.o
  /home/wei/git_repos/RISCV_Emulator/include/ALISS.h
  /home/wei/git_repos/RISCV_Emulator/include/Ins.h
+ /home/wei/git_repos/RISCV_Emulator/include/csr.h
  /home/wei/git_repos/RISCV_Emulator/src/ALISS.cpp
 CMakeFiles/ALISS.dir/src/main.cpp.o
  /home/wei/git_repos/RISCV_Emulator/src/main.cpp

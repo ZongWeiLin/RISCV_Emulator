@@ -24,11 +24,11 @@ typedef struct I_Type
 typedef struct S_Type
 {
     unsigned int op_code :7;//bit [6:0]
-    unsigned int rd :5;//bit[11:7]
+    unsigned int imm_0_to_4 :5;//bit[11:7]
     unsigned int funct3 :3;//bit[14:12]
     unsigned int rs1 :5;//bit[19:15]
     unsigned int rs2 :5;//bit[24:20]
-    unsigned int imm :7;//bit[31:25]
+    unsigned int imm_5_to_11 :7;//bit[31:25]
 }s_type_ins;
 
 typedef struct B_Type

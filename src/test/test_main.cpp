@@ -257,3 +257,215 @@ TEST(ISATESTSuite, BGEU_0x100_N128)//greater or equal
 }
 
 #endif
+
+/*ITDay 20 Add Load/Store Instruction*/
+#if (BUILD_LEVLEL == 20)
+
+/*-------------------------*/
+/*For Test Load Instruction*/
+/*-------------------------*/
+TEST(ISATESTSuite, LB_0x40000_0xffffffff88888888)
+{
+    ALISS_CPU Simulator = ALISS_CPU(4*1024*1024);; //4MB size for test
+    uint64_t* memory64  = (uint64_t*)Simulator.memory;
+
+    memory64[0x40000 / 8] = 0xffffffff88888888;
+    Simulator.reg[10]=0x0;
+    Simulator.reg[11]=0x40100;
+
+    uint32_t insn = 0xf0058503; // LB a0 -256(a1)
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+
+    EXPECT_EQ(Simulator.reg[10], -120 ); //load -120;
+}
+
+TEST(ISATESTSuite, LBU_0x40000_0xffffffff88888888)
+{
+    ALISS_CPU Simulator = ALISS_CPU(4*1024*1024);; //4MB size for test
+    uint64_t* memory64  = (uint64_t*)Simulator.memory;
+
+    memory64[0x40000 / 8] = 0xffffffff88888888;
+    Simulator.reg[10]=0x0;
+    Simulator.reg[11]=0x40100;
+
+    uint32_t insn = 0xf005c503; // LBU a0 -256(a1)
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+
+    EXPECT_EQ(Simulator.reg[10], 0x88 ); //load 0x88;
+}
+
+TEST(ISATESTSuite, LH_0x40000_0xffffffff88888888)
+{
+    ALISS_CPU Simulator = ALISS_CPU(4*1024*1024);; //4MB size for test
+    uint64_t* memory64  = (uint64_t*)Simulator.memory;
+
+    memory64[0x40000 / 8] = 0xffffffff88888888;
+    Simulator.reg[10]=0x0;
+    Simulator.reg[11]=0x40100;
+
+    uint32_t insn = 0xf0059503; // LH a0 -256(a1)
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+
+    EXPECT_EQ(Simulator.reg[10], -30584); //load -30584;
+}
+
+TEST(ISATESTSuite, LHU_0x40000_0xffffffff88888888)
+{
+    ALISS_CPU Simulator = ALISS_CPU(4*1024*1024); //4MB size for test
+    uint64_t* memory64  = (uint64_t*)Simulator.memory;
+
+    memory64[0x40000 / 8] = 0xffffffff88888888;
+    Simulator.reg[10]=0x0;
+    Simulator.reg[11]=0x40100;
+
+    uint32_t insn = 0xf005d503; // LHU a0 -256(a1)
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+
+    EXPECT_EQ(Simulator.reg[10], 0x8888 ); //load 34952;
+}
+
+TEST(ISATESTSuite, LW_0x40000_0xffffffff88888888)
+{
+    ALISS_CPU Simulator = ALISS_CPU(4*1024*1024); //4MB size for test
+    uint64_t* memory64  = (uint64_t*)Simulator.memory;
+
+    memory64[0x40000 / 8] = 0xffffffff88888888;
+    Simulator.reg[10] = 0x0;
+    Simulator.reg[11] = 0x40100;
+
+    uint32_t insn = 0xf005a503; // LHU a0 -256(a1)
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+
+    EXPECT_EQ(Simulator.reg[10], -2004318072 ); //load -2004318072;
+    
+}
+
+
+/*-------------------------*/
+/*For Test Store Instruction*/
+/*-------------------------*/
+TEST(ISATESTSuite, SB_0x40000_0xffffffff88888888)
+{
+    ALISS_CPU Simulator = ALISS_CPU(4*1024*1024); //4MB size for test
+    uint64_t* memory64  = (uint64_t*)Simulator.memory;
+
+    Simulator.reg[10] = 0xffffffff88888888;
+    Simulator.reg[11] = 0x40100;
+
+    memory64[0x40000 / 8 ] =  0x0;
+    
+
+    uint32_t insn = 0xf0a58023; // SB a0 -256(a1)
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+
+    EXPECT_EQ(memory64[0x40000 /  8], 0x88 ); //store 88 to memory;
+    
+}
+
+TEST(ISATESTSuite, SH_0x40000_0xffffffff88888888)
+{
+    ALISS_CPU Simulator = ALISS_CPU(4*1024*1024); //4MB size for test
+    uint64_t* memory64  = (uint64_t*)Simulator.memory;
+
+    Simulator.reg[10] = 0xffffffff88888888;
+    Simulator.reg[11] = 0x40100;
+
+    memory64[0x40000 / 8 ] =  0x0;
+ 
+    uint32_t insn = 0xf0a59023; // SH a0 -256(a1)
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+
+    EXPECT_EQ(memory64[0x40000 / 8], 0x8888 ); //store 8888 to memory;
+    
+}
+
+TEST(ISATESTSuite, SW_0x40000_0xffffffff88888888)
+{
+    ALISS_CPU Simulator = ALISS_CPU(4*1024*1024); //4MB size for test
+    uint64_t* memory64  = (uint64_t*)Simulator.memory;
+
+    Simulator.reg[10] = 0xffffffff88888888;
+    Simulator.reg[11] = 0x40100;
+
+    memory64[0x40000 / 8 ] =  0x0;
+ 
+    uint32_t insn = 0xf0a5a023; // SW a0 -256(a1)
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+
+    EXPECT_EQ(memory64[0x40000 / 8], 0x88888888 ); //store 88888888 to memory;
+    
+}
+
+#endif
+
+/*ITDay 21 Add CSR Instruction*/
+#if (BUILD_LEVLEL == 21)
+TEST(ISATESTSuite, csrrw_0x7cc_0x1234)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.csr[0x7cc] = 0x1010101010101010;
+    Simulator.reg[10] = 0x0;
+    Simulator.reg[11] = 0x1234;
+    uint32_t insn = 0x7cc59573; // csrrw a0 0x7cc a1
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.csr[0x7cc], 0x1234 ); //csr write to 1234;
+    EXPECT_EQ(Simulator.reg[10], 0x1010101010101010 ); //reg  is ori value;
+}
+
+TEST(ISATESTSuite, csrrs_0x7cc_0x101)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.csr[0x7cc] = 0x1010101010101010;
+    Simulator.reg[10] = 0x0;
+    Simulator.reg[11] = 0x101;
+    uint32_t insn = 0x7cc5a573; // csrrs a0 0x7cc a1
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.csr[0x7cc], 0x1010101010101111 ); //csrset [1], [9];
+    EXPECT_EQ(Simulator.reg[10], 0x1010101010101010 ); //reg is ori value;
+}
+
+TEST(ISATESTSuite, csrrc_0x7cc_0x1010)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.csr[0x7cc] = 0x1010101010101010;
+    Simulator.reg[10] = 0x0;
+    Simulator.reg[11] = 0x1010;
+    uint32_t insn = 0x7cc5b573; // csrrc a0 0x7cc a1
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.csr[0x7cc], 0x1010101010100000 ); //csr clear [4], [12];
+    EXPECT_EQ(Simulator.reg[10], 0x1010101010101010 ); //reg is ori value;
+}
+
+TEST(ISATESTSuite, csrrwi_0x7cc_0x2)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.csr[0x7cc] = 0x1010101010101010;
+    Simulator.reg[10] = 0x0;
+    uint32_t insn = 0x7cc15573; // csrrwi x10, 0x7cc, 2
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.csr[0x7cc], 0x2 ); //csr write to 2;
+    EXPECT_EQ(Simulator.reg[10], 0x1010101010101010 ); //reg  is ori value;
+}
+
+TEST(ISATESTSuite, csrrsi_0x7cc_0x1)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.csr[0x7cc] = 0x1010101010101010;
+    Simulator.reg[10] = 0x0;
+    uint32_t insn = 0x7cc0e573; // csrrsi x10, 0x7cc, 1
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.csr[0x7cc], 0x1010101010101011 ); //csrset [1];
+    EXPECT_EQ(Simulator.reg[10], 0x1010101010101010 ); //reg is ori value;
+}
+
+TEST(ISATESTSuite, csrrci_0x7cc_0x10)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.csr[0x7cc] = 0x1010101010101010;
+    Simulator.reg[10] = 0x0;
+    uint32_t insn = 0x7cc87573; // csrrci a0 0x7cc 0x10
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.csr[0x7cc], 0x1010101010101000 ); //csr clear [4];
+    EXPECT_EQ(Simulator.reg[10], 0x1010101010101010 ); //reg is ori value;
+}
+#endif

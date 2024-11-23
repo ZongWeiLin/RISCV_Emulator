@@ -82,10 +82,43 @@ void ALISS_CPU::loadElf(const char* filename)
 	return;
 }
 
-uint32_t ALISS_CPU::get_mem_w(uint32_t addr)
+/*Implement get memory function*/
+uint8_t ALISS_CPU::get_mem_b(uint64_t addr)
+{
+    return *(uint8_t*)(memory + addr);
+}
+
+uint16_t ALISS_CPU::get_mem_h(uint64_t addr)
+{
+    return *(uint16_t*)(memory + addr);
+}
+
+uint32_t ALISS_CPU::get_mem_w(uint64_t addr)
 {
     return *(uint32_t*)(memory + addr);
 }
+
+/*Implement load memory function*/
+
+void ALISS_CPU::set_mem_b(uint64_t addr,uint8_t val)
+{
+    uint8_t* mem_b = (uint8_t*)(&memory[addr]);
+    *mem_b = val;
+}
+
+void ALISS_CPU::set_mem_h(uint64_t addr,uint16_t val)
+{
+    uint16_t* mem_h = (uint16_t*)(&memory[addr]);
+    *mem_h = val;
+}
+
+void ALISS_CPU::set_mem_w(uint64_t addr,uint32_t val)
+{
+    uint32_t* mem_w = (uint32_t*)(&memory[addr]);
+    *mem_w = val;
+}
+
+/*Implemnt set sign extension function*/
 
 int64_t ALISS_CPU::set_sign_extension(uint64_t input,int lens)
 {
@@ -115,6 +148,12 @@ void ALISS_CPU::Instruction_Decode_Execution_WriteBack(uint32_t insn)
         case 0x13: //OP-I type
             Op_I_Type_Implement(insn);
             break;
+        case 0x3: //Load Ins
+            Op_Load_Ins_Imlpement(insn);
+            break;
+        case 0x23:
+            Op_Store_Ins_Implement(insn);
+            break;
         case 0x63://branch ins
             Op_B_Type_Implement(insn);
             break;
@@ -123,6 +162,9 @@ void ALISS_CPU::Instruction_Decode_Execution_WriteBack(uint32_t insn)
             break;
         case 0x6f://JAL
             Op_JAL_Ins_Implement(insn);
+            break;
+        case 0x73:
+            Op_CSRs_Ins_Implement(insn);
             break;
         default:
             break;
@@ -384,4 +426,146 @@ void ALISS_CPU::Op_B_Type_Implement(uint32_t insn)
         }
     }
 
+}
+
+void ALISS_CPU::Op_Load_Ins_Imlpement(uint32_t insn)
+{
+    riscv_ins Load_Ins;
+    Load_Ins.wIns = insn;
+
+    uint8_t rs1 = Load_Ins.i_Ins.rs1;
+    uint8_t rd =  Load_Ins.i_Ins.rd;
+    uint8_t funct3 = Load_Ins.i_Ins.funct3;
+    uint64_t imm = Load_Ins.i_Ins.imm;
+
+    switch (funct3)
+    {
+        case 0: //LB
+        {
+            reg[rd] = set_sign_extension(get_mem_b(reg[rs1] + set_sign_extension(imm,12)),8);
+            break;
+        }
+        case 1:  //LH
+        {
+            reg[rd] = set_sign_extension(get_mem_h(reg[rs1] + set_sign_extension(imm,12)),16);
+            break;
+        }
+        case 2: //LW
+        {
+            reg[rd] = set_sign_extension(get_mem_w(reg[rs1] + set_sign_extension(imm,12)),32);
+            break;
+        }
+        case 4: //LBU
+        {
+            reg[rd] = get_mem_b(reg[rs1] + set_sign_extension(imm,12));
+            break;
+        }
+        case 5:  //LHU
+        {
+            reg[rd] = get_mem_h(reg[rs1] + set_sign_extension(imm,12));
+            break;
+        }
+        default:
+        {
+            printf("Illegal instruction");
+            printf("%x\n",insn);
+            break;
+        }
+    }
+
+}
+
+void ALISS_CPU::Op_Store_Ins_Implement(uint32_t insn)
+{
+    riscv_ins Store_Ins;
+    Store_Ins.wIns = insn;
+
+    uint8_t rs1 = Store_Ins.s_Ins.rs1;
+    uint8_t rs2 = Store_Ins.s_Ins.rs2;
+    uint8_t funct3 = Store_Ins.s_Ins.funct3;
+    uint64_t imm = ((Store_Ins.s_Ins.imm_0_to_4)|
+                    (Store_Ins.s_Ins.imm_5_to_11<<5));
+    
+    switch (funct3)
+    {
+    case 0: //SB
+    {
+        set_mem_b(reg[rs1] + set_sign_extension(imm,12), (uint8_t)reg[rs2]);
+        break;
+    }
+    case 1:  //SH
+    {
+        set_mem_h(reg[rs1] + set_sign_extension(imm,12), (uint16_t)reg[rs2]);
+        break;
+    }
+    case 2: //SW
+    {
+        set_mem_w(reg[rs1] + set_sign_extension(imm,12), (uint32_t)reg[rs2]);
+        break;
+    }
+    default:
+    {
+            printf("Illegal instruction");
+            printf("%x\n",insn);
+            break;
+    }
+    }
+
+}
+
+void ALISS_CPU::Op_CSRs_Ins_Implement(uint32_t insn)
+{
+    riscv_ins   csr_ins;
+    csr_ins.wIns = insn;
+
+    uint8_t rd = csr_ins.i_Ins.rd;
+    uint8_t rs1 = csr_ins.i_Ins.rs1;
+    uint8_t funct3 = csr_ins.i_Ins.funct3;
+    uint64_t csr_no = csr_ins.i_Ins.imm;
+
+    switch (funct3)
+    {
+        case 1: //csrrw
+        {
+            reg[rd]  = csr[csr_no];
+            csr[csr_no] = reg[rs1];
+            break;
+        }
+        case 2: //csrrs
+        {
+            reg[rd]  = csr[csr_no];
+            csr[csr_no] = reg[rd] | reg[rs1];
+            break;
+        }
+        case 3: //csrrc
+        {
+            reg[rd]  = csr[csr_no];
+            csr[csr_no] = reg[rd] & ~reg[rs1];
+            break;
+        }
+        case 5: //csrrwi
+        {
+            reg[rd]  = csr[csr_no];
+            csr[csr_no] = rs1;
+            break;
+        }
+        case 6: //csrrsi
+        {
+            reg[rd]  = csr[csr_no];
+            csr[csr_no] = reg[rd] | rs1;
+            break;
+        }
+        case 7: //csrrci
+        {
+            reg[rd]  = csr[csr_no];
+            csr[csr_no] = reg[rd] & ~rs1;
+            break;
+        }
+        default:
+        {
+            printf("Illegal instruction");
+            printf("%x\n",insn);
+            break;
+        }
+    }
 }
