@@ -469,3 +469,27 @@ TEST(ISATESTSuite, csrrci_0x7cc_0x10)
     EXPECT_EQ(Simulator.reg[10], 0x1010101010101010 ); //reg is ori value;
 }
 #endif
+
+/*ITDay 22 Add RVI64 Instruction*/
+#if (BUILD_LEVLEL == 22)
+TEST(ISATESTSuite, ADDW0x80000000_0x1)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.reg[10] = 0x0;
+    Simulator.reg[11] = 0x80000000;
+    Simulator.reg[12] = 0x1;
+    uint32_t insn = 0x00c5853b; // addw a0 a1 a2
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.reg[10], 0xFFFFFFFF80000001); //3 + 7 = 10;
+}
+
+TEST(ISATESTSuite, ADDIW0x80000000_0x1)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.reg[10] = 0x0;
+    Simulator.reg[11] = 0x80000000;
+    uint32_t insn = 0x0015851b; // addiw a0 a1 1
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.reg[10], 0xFFFFFFFF80000001); //3 + 7 = 10;
+}
+#endif

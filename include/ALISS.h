@@ -11,7 +11,7 @@
 #include"../include/Ins.h"
 #include"../include/csr.h"
 
-#define BUILD_LEVLEL 21
+#define BUILD_LEVLEL 22
 
 #define MEMORY_SIZE 64*1024*1024 //64MB
 
@@ -36,11 +36,13 @@ public:
     uint8_t get_mem_b (uint64_t addr);
     uint16_t get_mem_h (uint64_t addr);
     uint32_t get_mem_w (uint64_t addr);
+    uint64_t get_mem_dw (uint64_t addr);
 
     /*set memory funcion*/
     void set_mem_b(uint64_t addr,uint8_t val);
     void set_mem_h(uint64_t addr,uint16_t val);
     void set_mem_w(uint64_t addr,uint32_t val);
+    void set_mem_dw(uint64_t addr,uint64_t val);
 
     int64_t set_sign_extension(uint64_t input,int lens);
     uint32_t Instruction_Fetch(void);
@@ -54,6 +56,8 @@ public:
     void Op_Load_Ins_Imlpement(uint32_t insn);
     void Op_Store_Ins_Implement(uint32_t insn);
     void Op_CSRs_Ins_Implement(uint32_t insn);
+    void Op_RV64I_R_Type_Ins_Implement(uint32_t insn);
+    void Op_RV64I_I_Type_Ins_Implement(uint32_t insn);
 };
 
 #endif
