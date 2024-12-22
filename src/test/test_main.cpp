@@ -7,7 +7,7 @@ TEST(MyTestSuite, MyTestCase) {
 
                 /*IT Day12*/
 /*Test lf entry point address load function*/
-#if (BUILD_LEVLEL == 12)
+#if (BUILD_LEVEL == 12)
 TEST(MyTestSuite, ELFLoaderTestEntryPoint) {
     const char* test = "../RISCV_elf/hello_world.elf";
 
@@ -20,7 +20,7 @@ TEST(MyTestSuite, ELFLoaderTestEntryPoint) {
 
                 /*IT Day13*/
 /*Test get load adress memory value*/
-#if (BUILD_LEVLEL == 13)
+#if (BUILD_LEVEL == 13)
 TEST(MyTestSuite, ELFLoaderTestLoad) {
     const char* test = "../RISCV_elf/hello_world.elf";
     ALISS_CPU Simulator=ALISS_CPU(MEMORY_SIZE);
@@ -31,7 +31,7 @@ TEST(MyTestSuite, ELFLoaderTestLoad) {
 
                 /*IT Day14*/
 /*Test Instruction Fetch*/
-#if (BUILD_LEVLEL == 14)
+#if (BUILD_LEVEL == 14)
 TEST(MyTestSuite, InstFetchTest) {
     const char* test = "../RISCV_elf/hello_world.elf";
     ALISS_CPU Simulator=ALISS_CPU(MEMORY_SIZE);
@@ -50,7 +50,7 @@ TEST(MyTestSuite, PCNextTest) {
 #endif
 
 /*IT Day17 Add R-Type Instruction*/
-#if (BUILD_LEVLEL == 17)
+#if (BUILD_LEVEL == 17)
 TEST(MyTestSuite, ADD0) {
     ALISS_CPU Simulator=ALISS_CPU();
     Simulator.reg[11] = 3;
@@ -89,7 +89,7 @@ TEST(MyTestSuite, SLL)
 #endif
 
 /*ITDay 18 Add I-Type Instruction*/
-#if (BUILD_LEVLEL == 18)
+#if (BUILD_LEVEL == 18)
 TEST(MyTestSuite, ADDI0)
 {
     ALISS_CPU Simulator = ALISS_CPU();
@@ -156,7 +156,7 @@ TEST(MyTestSuite, SLTI_f_1)
 #endif
 
 /*ITDay 19 Add I-Type Instruction*/
-#if (BUILD_LEVLEL == 19)
+#if (BUILD_LEVEL == 19)
 TEST(ISATESTSuite, JALR_0x100_0x50)
 {
     ALISS_CPU Simulator = ALISS_CPU();
@@ -259,7 +259,7 @@ TEST(ISATESTSuite, BGEU_0x100_N128)//greater or equal
 #endif
 
 /*ITDay 20 Add Load/Store Instruction*/
-#if (BUILD_LEVLEL == 20)
+#if (BUILD_LEVEL == 20)
 
 /*-------------------------*/
 /*For Test Load Instruction*/
@@ -399,7 +399,7 @@ TEST(ISATESTSuite, SW_0x40000_0xffffffff88888888)
 #endif
 
 /*ITDay 21 Add CSR Instruction*/
-#if (BUILD_LEVLEL == 21)
+#if (BUILD_LEVEL == 21)
 TEST(ISATESTSuite, csrrw_0x7cc_0x1234)
 {
     ALISS_CPU Simulator = ALISS_CPU();
@@ -471,7 +471,7 @@ TEST(ISATESTSuite, csrrci_0x7cc_0x10)
 #endif
 
 /*ITDay 22 Add RVI64 Instruction*/
-#if (BUILD_LEVLEL == 22)
+#if (BUILD_LEVEL == 22)
 TEST(ISATESTSuite, ADDW0x80000000_0x1)
 {
     ALISS_CPU Simulator = ALISS_CPU();
@@ -492,4 +492,59 @@ TEST(ISATESTSuite, ADDIW0x80000000_0x1)
     Simulator.Instruction_Decode_Execution_WriteBack(insn);
     EXPECT_EQ(Simulator.reg[10], 0xFFFFFFFF80000001); //3 + 7 = 10;
 }
+#endif
+
+#if (BUILD_LEVEL == 26)
+/*lui instruction test*/
+TEST(ISATESTSuite, LUI)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.reg[10] = 0x0;
+    uint32_t insn = 0x00001537; // lui,a0, 0x1
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.reg[10], 0x1000); 
+}
+/*auipc instruction test*/
+TEST(ISATESTSuite, AUIPC)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.pc = 0x1000;
+    Simulator.reg[10] = 0x0;
+    uint32_t insn = 0x00001517; // auipc a0 0x1
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.reg[10], 0x2000); 
+}
+
+TEST(ISATESTSuite, EBREAK)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.csr[CSR_MTVEC] = 0x8000;
+    Simulator.pc = 0x1000;
+    uint32_t insn = 0x00100073; // ebreak;
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.csr[0x341], 0x1000); 
+    EXPECT_EQ(Simulator.next_pc, 0x8000); // jump to mtvec
+}
+
+TEST(ISATESTSuite, ECALL)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.csr[CSR_MTVEC] = 0x8000;
+    Simulator.pc = 0x1000;
+    uint32_t insn = 0x00000073; // ecall;
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.csr[0x341], 0x1000);  //epc = 0x1000
+    EXPECT_EQ(Simulator.next_pc, 0x8000); // jump to mtvec
+}
+
+TEST(ISATESTSuite, MRET)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    Simulator.pc = 0x0;
+    Simulator.csr[CSR_MEPC] = 0x1000;
+    uint32_t insn = 0x30200073; // mret
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.next_pc, 0x1000);  //ret to epc
+}
+
 #endif

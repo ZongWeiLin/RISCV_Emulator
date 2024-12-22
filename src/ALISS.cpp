@@ -183,6 +183,12 @@ void ALISS_CPU::Instruction_Decode_Execution_WriteBack(uint32_t insn)
         case 0x1b:
             Op_RV64I_I_Type_Ins_Implement(insn);
             break;
+        case 0x37:
+            Op_Lui_Ins_Implement(insn);
+            break;
+        case 0x17:
+            Op_Auipc_Ins_Implement(insn);
+            break;
         default:
             break;
     }
@@ -555,6 +561,11 @@ void ALISS_CPU::Op_CSRs_Ins_Implement(uint32_t insn)
 
     switch (funct3)
     {
+        case 0:
+        {
+            Op_Sys_Ins_Implement(insn);
+            break;
+        }
         case 1: //csrrw
         {
             reg[rd]  = csr[csr_no];
@@ -723,4 +734,66 @@ void ALISS_CPU::Op_RV64I_I_Type_Ins_Implement(uint32_t insn)
             break;
         }
     } 
+}
+
+void ALISS_CPU::Op_Lui_Ins_Implement(uint32_t insn)
+{
+    riscv_ins lui_ins;
+    lui_ins.wIns = insn;
+
+    uint8_t rd = lui_ins.u_Ins.rd;
+    uint32_t imm_12_to_31 =(lui_ins.u_Ins.imm_12_to_31 << 12);
+
+    reg[rd] = set_sign_extension(imm_12_to_31,32);
+}
+
+void ALISS_CPU::Op_Auipc_Ins_Implement(uint32_t insn)
+{
+    riscv_ins auipc_ins;
+    auipc_ins.wIns = insn;
+
+    uint8_t rd = auipc_ins.u_Ins.rd;
+    uint32_t imm_12_to_31 =(auipc_ins.u_Ins.imm_12_to_31 << 12);
+
+    reg[rd] = pc + set_sign_extension(imm_12_to_31,32);
+}
+
+void ALISS_CPU::Op_Sys_Ins_Implement(uint32_t insn)
+{
+    riscv_ins sys_ins;
+    sys_ins.wIns = insn;
+
+    uint16_t sys_op = sys_ins.i_Ins.imm;
+
+    switch (sys_op)
+    {
+        case 0x0: //ecall
+        {
+            csr[CSR_MEPC] = pc; //epc = pc
+            next_pc = csr[CSR_MTVEC]; //mtvec = 0x305
+            break;
+        }
+        case 0x1: //ebreak
+        {
+            csr[CSR_MEPC] = pc;
+            next_pc = csr[CSR_MTVEC]; // mtvec = 0x305
+            break;
+        }
+        case 0x105: // wfi
+        {
+            //implement as nop ...
+            break;
+        }
+        case 0x302: //mret
+        {
+            next_pc = csr[CSR_MEPC]; //epc = 0x341
+            break;
+        }
+        default:
+        {
+            printf("Illegal instruction");
+            printf("%x\n",insn);
+            break;
+        }
+    }
 }

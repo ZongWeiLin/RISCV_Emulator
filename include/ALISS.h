@@ -11,7 +11,7 @@
 #include"../include/Ins.h"
 #include"../include/csr.h"
 
-#define BUILD_LEVLEL 22
+#define BUILD_LEVEL 26
 
 #define MEMORY_SIZE 64*1024*1024 //64MB
 
@@ -58,6 +58,9 @@ public:
     void Op_CSRs_Ins_Implement(uint32_t insn);
     void Op_RV64I_R_Type_Ins_Implement(uint32_t insn);
     void Op_RV64I_I_Type_Ins_Implement(uint32_t insn);
+    void Op_Lui_Ins_Implement(uint32_t insn);
+    void Op_Auipc_Ins_Implement(uint32_t insn);
+    void Op_Sys_Ins_Implement(uint32_t insn);
 };
 
 #endif
