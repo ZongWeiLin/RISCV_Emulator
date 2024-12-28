@@ -6,14 +6,28 @@
 //Constructor
 ALISS_CPU::ALISS_CPU()
 {
-    pc = 0;//initialize program counter
-    memory = NULL;//initialize memory address
+    /*initialize program counter*/
+    pc = 0;
+    next_pc = 0;
+
+    /*Assign CPU memory*/
+    memory = NULL;
+
+    /*Initial Reserved bit*/
+    reservation = false;
 }
 
 ALISS_CPU::ALISS_CPU(uint32_t memory_size)
 {
-    pc=0;//initialize program counter
-    memory = new char[memory_size];//Assign CPU memory
+    /*initialize program counter*/
+    pc = 0;
+    next_pc = 0;
+
+    /*Assign CPU memory*/
+    memory = new char[memory_size];
+
+    /*Initial Reserved bit*/
+    reservation = false;
 }
 
 //
@@ -188,6 +202,9 @@ void ALISS_CPU::Instruction_Decode_Execution_WriteBack(uint32_t insn)
             break;
         case 0x17:
             Op_Auipc_Ins_Implement(insn);
+            break;
+        case 0x2f:
+            Op_Atomic_Ins_Implement(insn);
             break;
         default:
             break;
@@ -793,6 +810,96 @@ void ALISS_CPU::Op_Sys_Ins_Implement(uint32_t insn)
         {
             printf("Illegal instruction");
             printf("%x\n",insn);
+            break;
+        }
+    }
+}
+
+void ALISS_CPU::Op_Atomic_Ins_Implement(uint32_t insn)
+{
+    riscv_ins atomic_insn;
+    atomic_insn.wIns = insn;
+
+    uint8_t rs1 = atomic_insn.r_Ins.rs1;
+    uint8_t rs2 = atomic_insn.r_Ins.rs2;
+    uint8_t rd = atomic_insn.r_Ins.rd;
+    uint8_t funct7 = atomic_insn.r_Ins.funct7; 
+    uint8_t atomic_op = funct7 >> 2;
+
+    switch (atomic_op)
+    {
+        case 0x2: //LR.W
+        {
+            reg[rd] = set_sign_extension(get_mem_w(reg[rs1]),32);
+            reservation = true;
+            break;
+        }
+        case 0x3: //SC.W
+        {
+            if(reservation)
+            {
+                set_mem_w(reg[rs1], (uint32_t)reg[rs2]);
+                reg[rd] = 0;
+            }
+            else
+            {
+                reg[rd] = 1;
+            }
+            reservation = false;
+            break;
+        }
+        case 0x1: //AMOSWP.D
+        {
+            reg[rd] = get_mem_dw(reg[rs1]);
+            set_mem_dw(reg[rs1], reg[rs2]);
+            break;
+        }
+        case 0x0: //AMOADD.D
+        {
+            reg[rd] = get_mem_dw(reg[rs1]);
+            set_mem_dw(reg[rs1], reg[rs2] + reg[rd]);
+            break;
+        }
+        case 0x4: //AMOXOR.D
+        {
+            reg[rd] = get_mem_dw(reg[rs1]);
+            set_mem_dw(reg[rs1], reg[rs2] ^ reg[rd]);
+            break;
+            }
+        case 0xc: //AMOAND.D
+        {
+            reg[rd] = get_mem_dw(reg[rs1]);
+            set_mem_dw(reg[rs1], reg[rs2] & reg[rd]);
+            break;
+        }
+        case 0x8: //AMOOR.D
+        {
+            reg[rd] = get_mem_dw(reg[rs1]);
+            set_mem_dw(reg[rs1], reg[rs2] | reg[rd]);
+            break;
+        }
+        case 0x10: //AMOMIN.D
+        {
+            reg[rd] = get_mem_dw(reg[rs1]);
+            set_mem_dw(reg[rs1], (int64_t)reg[rs2] < (int64_t)reg[rd] ? reg[rs2] : reg[rd] );
+            break;
+        }
+        case 0x14: //AMOMAX.D
+        {
+            reg[rd] = get_mem_dw(reg[rs1]);
+            set_mem_dw(reg[rs1], (int64_t)reg[rs2] > (int64_t)reg[rd] ? reg[rs2] : reg[rd] );
+            break;
+        }
+        case 0x18: //AMOMINU.D
+        {
+            reg[rd] = get_mem_dw(reg[rs1]);
+            set_mem_dw(reg[rs1], reg[rs2] < reg[rd] ? reg[rs2] : reg[rd] );
+            break;
+        }
+        case 0x1c: //AMOMAXU.D
+        {
+            reg[rd] = get_mem_dw(reg[rs1]);
+            set_mem_dw(reg[rs1], reg[rs2] > reg[rd] ? reg[rs2] : reg[rd] );
             break;
         }
     }

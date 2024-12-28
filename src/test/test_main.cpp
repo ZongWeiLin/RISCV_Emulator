@@ -494,7 +494,7 @@ TEST(ISATESTSuite, ADDIW0x80000000_0x1)
 }
 #endif
 
-#if (BUILD_LEVEL == 26)
+#if (BUILD_LEVEL == 25)
 /*lui instruction test*/
 TEST(ISATESTSuite, LUI)
 {
@@ -545,6 +545,61 @@ TEST(ISATESTSuite, MRET)
     uint32_t insn = 0x30200073; // mret
     Simulator.Instruction_Decode_Execution_WriteBack(insn);
     EXPECT_EQ(Simulator.next_pc, 0x1000);  //ret to epc
+}
+
+#endif
+
+#if (BUILD_LEVEL == 26)
+
+TEST(ISATESTSuiteLRSC, LR_W)
+{
+    ALISS_CPU Simulator = ALISS_CPU(4 * 1024 * 1024);
+    uint64_t *memory64 = (uint64_t*) Simulator.memory;
+    memory64[0x40000 / 8] = 0xffffffff88888888;
+
+    Simulator.reg[10] = 0x0;
+    Simulator.reg[11] = 0x40000;
+
+    Simulator.reservation = false;
+    uint32_t insn = 0x1005a52f; // lr a0, a1
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.reg[10], -2004318072 ); //load -2004318072;
+    EXPECT_EQ(Simulator.reservation, true);
+}
+
+
+TEST(ISATESTSuiteLRSC, SC_W_FAIL)
+{
+    ALISS_CPU Simulator = ALISS_CPU(4 * 1024 * 1024);
+    uint64_t *memory64 = (uint64_t*) Simulator.memory;
+ 
+    Simulator.reg[10] = 0x0;
+    Simulator.reg[11] = 0xaaaa;
+    Simulator.reg[12] = 0x40000;
+
+    Simulator.reservation = false;
+    uint32_t insn = 0x18b6252f; // sc a0, a1, a2
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+
+    EXPECT_EQ(memory64[0x40000 / 8], 0x0); //0 // failure
+    EXPECT_EQ(Simulator.reg[10], 1 ); //1 //failure
+}
+
+TEST(ISATESTSuiteLRSC, SC_W_SUCCESS)
+{
+    ALISS_CPU Simulator = ALISS_CPU(4 * 1024 * 1024);
+    uint64_t *memory64 = (uint64_t*) Simulator.memory;
+ 
+    Simulator.reg[10] = 0x0;
+    Simulator.reg[11] = 0xaaaa;
+    Simulator.reg[12] = 0x40000;
+
+    Simulator.reservation = true;
+    uint32_t insn = 0x18b6252f; // sc a0, a1, a2
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+
+    EXPECT_EQ(memory64[0x40000 / 8], 0xaaaa ); 
+    EXPECT_EQ(Simulator.reg[10], 0 ); //0 //success
 }
 
 #endif

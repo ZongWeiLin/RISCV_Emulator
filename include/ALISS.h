@@ -20,11 +20,19 @@ class ALISS_CPU
 private:
     /* data */
 public:
+    /*program counter*/
     uint32_t pc;
     uint32_t next_pc;
+    
+    /*register*/
     uint64_t reg[32];
     uint64_t csr[0x7FF];//For easy to implement,direct mapping large space for csr
+
+    /*Memory*/
     char *memory;
+
+    /*Atomic relative variable*/
+    bool reservation;
 
     ALISS_CPU();
     ALISS_CPU(uint32_t memory_size);
@@ -61,6 +69,7 @@ public:
     void Op_Lui_Ins_Implement(uint32_t insn);
     void Op_Auipc_Ins_Implement(uint32_t insn);
     void Op_Sys_Ins_Implement(uint32_t insn);
+    void Op_Atomic_Ins_Implement(uint32_t insn);
 };
 
 #endif
