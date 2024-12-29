@@ -6,5 +6,8 @@ CMakeFiles/ALISS.dir/src/ALISS.cpp.o: ../include/Ins.h
 CMakeFiles/ALISS.dir/src/ALISS.cpp.o: ../include/csr.h
 CMakeFiles/ALISS.dir/src/ALISS.cpp.o: ../src/ALISS.cpp
 
+CMakeFiles/ALISS.dir/src/main.cpp.o: ../include/ALISS.h
+CMakeFiles/ALISS.dir/src/main.cpp.o: ../include/Ins.h
+CMakeFiles/ALISS.dir/src/main.cpp.o: ../include/csr.h
 CMakeFiles/ALISS.dir/src/main.cpp.o: ../src/main.cpp
 

@@ -30,7 +30,13 @@ elf.h
 
 /home/wei/git_repos/RISCV_Emulator/include/csr.h
 
-/home/wei/git_repos/RISCV_Emulator/src/ALISS.cpp
+/home/wei/git_repos/RISCV_Emulator/src/main.cpp
+stdio.h
+-
+stdlib.h
+-
+iostream
+-
 ../include/ALISS.h
 /home/wei/git_repos/RISCV_Emulator/include/ALISS.h
 

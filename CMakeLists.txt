@@ -11,7 +11,7 @@ file(GLOB TEST_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/test/*.cpp)
 # set(SOURCE_FILES src/main.cpp)
 # set(TEST_FILES src/test_main.cpp)
 
-add_executable(ALISS ${SOURCE_FILES})
+add_executable(ALISS ${SOURCE_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/src/ALISS.cpp)
 add_executable(ALISS_TEST ${TEST_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/src/ALISS.cpp)
 target_link_libraries(ALISS_TEST gtest GTest::GTest GTest::Main)
 

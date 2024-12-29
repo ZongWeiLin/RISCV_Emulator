@@ -653,3 +653,17 @@ TEST(ISATESTSuiteMPU, REM_10_5)
     EXPECT_EQ(Simulator.reg[10], 1); //11 % 5 = 1;
 }
 #endif
+
+#if (BUILD_LEVEL == 28)
+TEST(MyTestSuite, RISCV_TEST) {
+    const char* test = "../RISCV_elf/isa/rv64ui-p-add";
+
+    ALISS_CPU Simulator=ALISS_CPU(MEMORY_SIZE);
+    Simulator.loadElf(test);
+
+    while(1)
+	{
+        Simulator.run_pipe();
+	}
+}
+#endif

@@ -17,7 +17,7 @@ ALISS_CPU::ALISS_CPU()
     reservation = false;
 }
 
-ALISS_CPU::ALISS_CPU(uint32_t memory_size)
+ALISS_CPU::ALISS_CPU(uint64_t memory_size)
 {
     /*initialize program counter*/
     pc = 0;
@@ -39,13 +39,13 @@ ALISS_CPU::~ALISS_CPU()
     }
 }
 
-void ALISS_CPU::loadElf(const char* filename)
+bool ALISS_CPU::loadElf(const char* filename)
 {
     // ELF loader function
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
         std::cerr << "Failed to open file: " << filename << std::endl;
-        return;
+        return false;
     }
     // Read the ELF header
     Elf64_Ehdr elfHeader;
@@ -53,17 +53,17 @@ void ALISS_CPU::loadElf(const char* filename)
     // Check ELF magic number
     if (memcmp(elfHeader.e_ident, ELFMAG, SELFMAG) != 0) {
         std::cerr << "Not a valid ELF file: " << filename << std::endl;
-        return;
+        return false;
     }
     // Check ELF class (32-bit or 64-bit)
     if (elfHeader.e_ident[EI_CLASS] != ELFCLASS64) {
         std::cerr << "Only 64-bit ELF files are supported: " << filename << std::endl;
-        return;
+        return false;
     }
     // Check ELF data encoding (little-endian or big-endian)
     if (elfHeader.e_ident[EI_DATA] != ELFDATA2LSB) {
         std::cerr << "Only little-endian ELF files are supported: " << filename << std::endl;
-        return;
+        return false;
     }
     // Get the entry point address
     Elf64_Addr entryPoint = elfHeader.e_entry;
@@ -93,7 +93,19 @@ void ALISS_CPU::loadElf(const char* filename)
     
     // Add more code here to load and work with program segments, sections, etc.
     file.close();
-	return;
+	return true;
+}
+
+bool loadDTB(const char* filename, uint64_t dtb_addr)
+{
+    return true;
+}
+
+/*Print Debug log used*/
+void ALISS_CPU::dump_insn(uint32_t insn)
+{
+    printf("pc = %16lx , insn = %08x\n",pc,insn);
+    printf("//////////////////////////\n");
 }
 
 /*Implement get memory function*/
@@ -203,8 +215,12 @@ void ALISS_CPU::Instruction_Decode_Execution_WriteBack(uint32_t insn)
     n_ins.wIns = insn;
     uint8_t opcode_val = n_ins.wIns & 0x7f;
 
+    //keep x0 to 0
+    reg[0] = 0;
+    
     //fetch next command to pc
-    next_pc=pc+4;
+    next_pc = pc+4;
+
 
     ////implement insn here
     switch (opcode_val)
@@ -268,7 +284,11 @@ void ALISS_CPU::run_pipe(void)
     uint32_t ins = Instruction_Fetch();
     Instruction_Decode_Execution_WriteBack(ins);
 
-    pc=next_pc;//jump to next instruction
+    #ifdef INS_DBG
+    dump_insn(ins);
+    #endif
+
+    pc = next_pc;//jump to next instruction
 }
 
 void ALISS_CPU:: Op_R_Type_Implement (uint32_t insn)
@@ -484,6 +504,7 @@ void ALISS_CPU::Op_B_Type_Implement(uint32_t insn)
         {
             if(reg[rs1] != reg[rs2])
                 next_pc = pc + set_sign_extension(imm,13);
+            
             break;
         }
         case 4: //BLT
@@ -840,6 +861,12 @@ void ALISS_CPU::Op_Sys_Ins_Implement(uint32_t insn)
         {
             csr[CSR_MEPC] = pc; //epc = pc
             next_pc = csr[CSR_MTVEC]; //mtvec = 0x305
+
+            #ifdef BAREMETAL
+            if(reg[17] == 93)
+                exit(reg[10]);
+            #endif
+
             break;
         }
         case 0x1: //ebreak

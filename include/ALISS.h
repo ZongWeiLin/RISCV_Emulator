@@ -11,7 +11,11 @@
 #include"../include/Ins.h"
 #include"../include/csr.h"
 
-#define BUILD_LEVEL 27
+#define INS_DBG
+
+#define BUILD_LEVEL 28
+
+#define BAREMETAL
 
 #define MEMORY_SIZE 64*1024*1024 //64MB
 
@@ -26,7 +30,7 @@ public:
     
     /*register*/
     uint64_t reg[32];
-    uint64_t csr[0x7FF];//For easy to implement,direct mapping large space for csr
+    uint64_t csr[0x7FFF];//For easy to implement,direct mapping large space for csr
 
     /*Memory*/
     char *memory;
@@ -35,10 +39,15 @@ public:
     bool reservation;
 
     ALISS_CPU();
-    ALISS_CPU(uint32_t memory_size);
+    ALISS_CPU(uint64_t memory_size);
     ~ALISS_CPU();
 
-    void loadElf(const char* filename);
+    bool loadElf(const char* filename);
+
+    bool loadDTB(const char* filename, uint64_t dtb_addr);
+
+    /*Print Debug log used*/
+    void dump_insn(uint32_t insn);
     
     /*get memory function*/
     uint8_t get_mem_b (uint64_t addr);
