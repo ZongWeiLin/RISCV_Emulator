@@ -603,3 +603,53 @@ TEST(ISATESTSuiteLRSC, SC_W_SUCCESS)
 }
 
 #endif
+
+#if (BUILD_LEVEL == 27)
+TEST(ISATESTSuiteMPU, MUL_11_N13)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    
+    Simulator.reg[10] = 0x0;
+    Simulator.reg[11] = 11;
+    Simulator.reg[12] = -13;
+    uint32_t insn = 0x02c58533; // mul a0, a1, a2
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.reg[10], -143); //11 * 13 = -143;
+}
+
+TEST(ISATESTSuiteMPU, MULH_11_13)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    
+    Simulator.reg[10] = 0x0;
+    Simulator.reg[11] = (int64_t) 11 << 32;
+    Simulator.reg[12] = (int64_t) 13 << 32;
+    uint32_t insn = 0x02c59533; // mulh a0, a1, a2
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.reg[10], 143); //11 * 13 = 143;
+}
+
+TEST(ISATESTSuiteMPU, DIV_10_5)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+
+    Simulator.reg[10] = 0x0;
+    Simulator.reg[11] = 10;
+    Simulator.reg[12] = 5;
+    uint32_t insn = 0x02c5c533; // div a0, a1, a2
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.reg[10], 2); //10 / 5 = 2;
+}
+
+TEST(ISATESTSuiteMPU, REM_10_5)
+{
+    ALISS_CPU Simulator = ALISS_CPU();
+    
+    Simulator.reg[10] = 0x0;
+    Simulator.reg[11] = 11;
+    Simulator.reg[12] = 5;
+    uint32_t insn = 0x02c5e533; // rem a0, a1, a2
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+    EXPECT_EQ(Simulator.reg[10], 1); //11 % 5 = 1;
+}
+#endif

@@ -11,7 +11,7 @@
 #include"../include/Ins.h"
 #include"../include/csr.h"
 
-#define BUILD_LEVEL 26
+#define BUILD_LEVEL 27
 
 #define MEMORY_SIZE 64*1024*1024 //64MB
 
@@ -52,6 +52,11 @@ public:
     void set_mem_w(uint64_t addr,uint32_t val);
     void set_mem_dw(uint64_t addr,uint64_t val);
 
+    /*Multification Function*/
+    uint64_t mulhu(uint64_t a, uint64_t b);
+    int64_t mulh(int64_t a, int64_t b);
+    int64_t mulhsu(int64_t a, uint64_t b);
+
     int64_t set_sign_extension(uint64_t input,int lens);
     uint32_t Instruction_Fetch(void);
     void Instruction_Decode_Execution_WriteBack(uint32_t insn);
@@ -70,6 +75,7 @@ public:
     void Op_Auipc_Ins_Implement(uint32_t insn);
     void Op_Sys_Ins_Implement(uint32_t insn);
     void Op_Atomic_Ins_Implement(uint32_t insn);
+    void Op_M_Type_Ins_Implement(uint32_t insn);
 };
 
 #endif

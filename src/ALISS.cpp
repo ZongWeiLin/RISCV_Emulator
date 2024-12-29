@@ -143,6 +143,48 @@ void ALISS_CPU::set_mem_dw(uint64_t addr,uint64_t val)
     *mem_dw = val;
 }
 
+/*Implement Mulitification function*/
+uint64_t ALISS_CPU:: mulhu(uint64_t a, uint64_t b)
+{
+    uint64_t t;           // Temporary variable for intermediate calculations
+    uint32_t y1, y2, y3;  // Intermediate 32-bit results
+    uint64_t a0 = (uint32_t)a, a1 = a >> 32; // Split `a` into lower 32 bits (a0) and upper 32 bits (a1)
+    uint64_t b0 = (uint32_t)b, b1 = b >> 32; // Split `b` into lower 32 bits (b0) and upper 32 bits (b1)
+
+    // Compute the partial product of upper half of `a` and lower half of `b`, plus high bits from lower halves
+    t = a1 * b0 + ((a0 * b0) >> 32);
+    y1 = t;          // Lower 32 bits of the partial sum
+    y2 = t >> 32;    // Upper 32 bits of the partial sum
+
+    // Add the partial product of lower half of `a` and upper half of `b`
+    t = a0 * b1 + y1;
+
+    // Compute the final upper 64 bits, including the full upper half of both numbers
+    t = a1 * b1 + y2 + (t >> 32);
+    y2 = t;          // Lower 32 bits of the final result
+    y3 = t >> 32;    // Upper 32 bits of the final result
+
+    // Combine the upper and lower halves to return the final result    
+    return ((uint64_t)y3 << 32) | y2;
+}
+
+int64_t ALISS_CPU:: mulh(int64_t a, int64_t b)
+{
+    int negate = (a < 0) != (b < 0);  // Determine if the result should be negative
+    printf("a:%lx,b:%lx\n",a,b);
+    uint64_t res = mulhu(a < 0 ? -a : a, b < 0 ? -b : b); // Calculate the unsigned product of the absolute values
+    // Adjust the result for negative values if needed
+    return negate ? ~res + (a * b == 0) : res;
+}
+
+int64_t ALISS_CPU:: mulhsu(int64_t a, uint64_t b)
+{
+    int negate = a < 0;               // Determine if the result should be negative
+    uint64_t res = mulhu(a < 0 ? -a : a, b); // Calculate the unsigned product of absolute value of `a` and `b`
+    // Adjust the result for negative values if needed
+    return negate ? ~res + (a * b == 0) : res;
+}
+
 /*Implemnt set sign extension function*/
 
 int64_t ALISS_CPU::set_sign_extension(uint64_t input,int lens)
@@ -168,8 +210,18 @@ void ALISS_CPU::Instruction_Decode_Execution_WriteBack(uint32_t insn)
     switch (opcode_val)
     {
         case 0x33: //OP-R type
-            Op_R_Type_Implement(insn);
+        {
+            uint8_t funct7 = n_ins.r_Ins.funct7;
+            if (funct7 == 0x01)
+            {
+                Op_M_Type_Ins_Implement(insn);
+            }
+            else
+            {
+                Op_R_Type_Implement(insn);
+            }
             break;
+        }
         case 0x13: //OP-I type
             Op_I_Type_Implement(insn);
             break;
@@ -903,4 +955,102 @@ void ALISS_CPU::Op_Atomic_Ins_Implement(uint32_t insn)
             break;
         }
     }
+}
+
+void ALISS_CPU::Op_M_Type_Ins_Implement(uint32_t insn)
+{
+    riscv_ins m_type_insn;
+    m_type_insn.wIns = insn;
+
+    uint8_t rs1 = m_type_insn.r_Ins.rs1;
+    uint8_t rs2 = m_type_insn.r_Ins.rs2;
+    uint8_t rd = m_type_insn.r_Ins.rd;
+    uint8_t funct3 = m_type_insn.r_Ins.funct3;
+
+    switch (funct3)
+    {
+        case 0x0: //MUL
+        {
+            reg[rd] = (int64_t)reg[rs1] * (int64_t)reg[rs2];
+            break;
+        }
+        case 0x1: //MULH
+        {
+            reg[rd] = mulh(reg[rs1],reg[rs2]);
+            break;
+        }
+        case 0x2: //MULHSU
+        {
+            reg[rd] = mulhsu(reg[rs1],reg[rs2]);
+            break;
+        }
+        case 0x3: //MULHU
+        {
+            reg[rd] = mulhu(reg[rs1],reg[rs2]);
+            break;
+        }
+        case 0x4: //DIV
+        {
+            if(reg[rs2] == 0) //can't div 0
+            {
+                reg[rd] = -1;
+            }
+            else if((int64_t)reg[rs1] == INT64_MIN && (int64_t)reg[rs2] == -1) // may overflow
+            {
+                reg[rd] = reg[rs1];
+            }
+            else
+            {
+                reg[rd] = (int64_t)reg[rs1] / (int64_t)reg[rs2];
+            }
+            break;
+        }
+        case 0x5: //DIVU
+        {
+            if(reg[rs2] == 0) //can't div 0
+            {
+                reg[rd] = -1;
+            }
+            else
+            {
+                reg[rd] = reg[rs1] / reg[rs2];
+            }
+            break;
+        }
+        case 0x6: //REM
+        {
+            if(reg[rs2] == 0) //can't div 0
+            {
+                reg[rd] = reg[rs1];
+            }
+            else if((int64_t)reg[rs1] == INT64_MIN && (int64_t)reg[rs2] == -1) // may overflow
+            {
+                reg[rd] = 0;
+            }
+            else
+            {
+                reg[rd] = (int64_t)reg[rs1] % (int64_t)reg[rs2];
+            }
+            break;
+        }
+        case 0x7: //REMU
+        {
+            if(reg[rs2] == 0) //can't div 0
+            {
+                reg[rd] = reg[rs1];
+            }
+            else
+            {
+                reg[rd] = reg[rs1] % reg[rs2];
+            }
+            break;
+        }
+        default:
+        {
+                printf("Illegal instruction");
+                printf("%x\n",insn);
+                break;
+        }
+    }
+
 }
