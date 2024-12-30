@@ -655,15 +655,43 @@ TEST(ISATESTSuiteMPU, REM_10_5)
 #endif
 
 #if (BUILD_LEVEL == 28)
-TEST(MyTestSuite, RISCV_TEST) {
+// TEST(MyTestSuite, RISCV_TEST) {
+//     const char* test = "../RISCV_elf/isa/rv64ui-p-add";
+
+//     ALISS_CPU Simulator=ALISS_CPU(MEMORY_SIZE);
+//     Simulator.loadElf(test);
+
+//     while(1)
+// 	{
+//         Simulator.run_pipe();
+// 	}
+// }
+
+
+TEST(MyTestSuite, DBG) {
     const char* test = "../RISCV_elf/isa/rv64ui-p-add";
 
     ALISS_CPU Simulator=ALISS_CPU(MEMORY_SIZE);
     Simulator.loadElf(test);
 
-    while(1)
-	{
-        Simulator.run_pipe();
-	}
+    uint32_t insn;
+
+    /*Test Load memory*/
+    insn = 0x00a6a023;
+    Simulator.reg[13] = 0x2000;
+    Simulator.reg[10] = 0x01;
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+
+    uint32_t *mem_32 = (uint32_t*)(&Simulator.memory[Simulator.reg[13]]);
+
+    EXPECT_EQ((*mem_32), 0x01);
+
+    /*Test Get Memory*/
+    insn = 0x0006a783;
+
+    Simulator.Instruction_Decode_Execution_WriteBack(insn);
+
+    EXPECT_EQ(Simulator.reg[15], 0x01);
+
 }
 #endif

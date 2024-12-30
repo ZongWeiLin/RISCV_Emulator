@@ -10,6 +10,9 @@ ALISS_CPU::ALISS_CPU()
     pc = 0;
     next_pc = 0;
 
+    /*Initial close debug mode*/
+    Debug_mode = false;
+
     /*Assign CPU memory*/
     memory = NULL;
 
@@ -22,6 +25,9 @@ ALISS_CPU::ALISS_CPU(uint64_t memory_size)
     /*initialize program counter*/
     pc = 0;
     next_pc = 0;
+
+    /*Initial close debug mode*/
+    Debug_mode = false;
 
     /*Assign CPU memory*/
     memory = new char[memory_size];
@@ -104,7 +110,16 @@ bool loadDTB(const char* filename, uint64_t dtb_addr)
 /*Print Debug log used*/
 void ALISS_CPU::dump_insn(uint32_t insn)
 {
-    printf("pc = %16lx , insn = %08x\n",pc,insn);
+    printf("pc = %016lx , insn = %08x \n",pc,insn);
+    for (uint8_t i = 1; i <= 32; i++)
+    {
+        printf("reg[%02d] = %016lx , ",i-1,reg[i-1]);
+
+        if((i%8) == 0)
+            printf("\n");
+    }
+    
+
     printf("//////////////////////////\n");
 }
 
@@ -260,7 +275,17 @@ void ALISS_CPU::Instruction_Decode_Execution_WriteBack(uint32_t insn)
             Op_CSRs_Ins_Implement(insn);
             break;
         case 0x3b:
-            Op_RV64I_R_Type_Ins_Implement(insn);
+        {
+            uint8_t funct7 = n_ins.r_Ins.funct7;
+            if (funct7 == 0x01)
+            {
+                
+            }
+            else
+            {
+                Op_RV64I_R_Type_Ins_Implement(insn);
+            }
+        }
             break;
         case 0x1b:
             Op_RV64I_I_Type_Ins_Implement(insn);
@@ -284,9 +309,10 @@ void ALISS_CPU::run_pipe(void)
     uint32_t ins = Instruction_Fetch();
     Instruction_Decode_Execution_WriteBack(ins);
 
-    #ifdef INS_DBG
-    dump_insn(ins);
-    #endif
+    if(Debug_mode)
+    {
+        dump_insn(ins);
+    }
 
     pc = next_pc;//jump to next instruction
 }
@@ -553,38 +579,40 @@ void ALISS_CPU::Op_Load_Ins_Imlpement(uint32_t insn)
 
     switch (funct3)
     {
-        case 0: //LB
+        case 0x00: //LB
         {
             reg[rd] = set_sign_extension(get_mem_b(reg[rs1] + set_sign_extension(imm,12)),8);
             break;
         }
-        case 1:  //LH
+        case 0x01:  //LH
         {
             reg[rd] = set_sign_extension(get_mem_h(reg[rs1] + set_sign_extension(imm,12)),16);
             break;
         }
-        case 2: //LW
+        case 0x02: //LW
         {
             reg[rd] = set_sign_extension(get_mem_w(reg[rs1] + set_sign_extension(imm,12)),32);
             break;
         }
-        case 3: //LDW
+        case 0x03: //LDW
         {
             reg[rd] = get_mem_dw(reg[rs1]+set_sign_extension(imm,12));
+            break;
         }
-        case 4: //LBU
+        case 0x04: //LBU
         {
             reg[rd] = get_mem_b(reg[rs1] + set_sign_extension(imm,12));
             break;
         }
-        case 5:  //LHU
+        case 0x05:  //LHU
         {
             reg[rd] = get_mem_h(reg[rs1] + set_sign_extension(imm,12));
             break;
         }
-        case 6: //LWU
+        case 0x06: //LWU
         {
             reg[rd] = get_mem_w(reg[rs1] + set_sign_extension(imm,12));
+            break;
         }
         default:
         {
@@ -631,9 +659,9 @@ void ALISS_CPU::Op_Store_Ins_Implement(uint32_t insn)
     }
     default:
     {
-            printf("Illegal instruction");
-            printf("%x\n",insn);
-            break;
+        printf("Illegal instruction");
+        printf("%x\n",insn);
+        break;
     }
     }
 
@@ -902,14 +930,17 @@ void ALISS_CPU::Op_Atomic_Ins_Implement(uint32_t insn)
     uint8_t rs1 = atomic_insn.r_Ins.rs1;
     uint8_t rs2 = atomic_insn.r_Ins.rs2;
     uint8_t rd = atomic_insn.r_Ins.rd;
+    uint8_t funct3 = atomic_insn.r_Ins.funct3;
     uint8_t funct7 = atomic_insn.r_Ins.funct7; 
     uint8_t atomic_op = funct7 >> 2;
 
-    switch (atomic_op)
+    if(funct3 == 0x03)
     {
+        switch (atomic_op)
+        {
         case 0x2: //LR.W
         {
-            reg[rd] = set_sign_extension(get_mem_w(reg[rs1]),32);
+            reg[rd] = get_mem_dw(reg[rs1]);
             reservation = true;
             break;
         }
@@ -917,7 +948,7 @@ void ALISS_CPU::Op_Atomic_Ins_Implement(uint32_t insn)
         {
             if(reservation)
             {
-                set_mem_w(reg[rs1], (uint32_t)reg[rs2]);
+                set_mem_dw(reg[rs1], reg[rs2]);
                 reg[rd] = 0;
             }
             else
@@ -980,6 +1011,87 @@ void ALISS_CPU::Op_Atomic_Ins_Implement(uint32_t insn)
             reg[rd] = get_mem_dw(reg[rs1]);
             set_mem_dw(reg[rs1], reg[rs2] > reg[rd] ? reg[rs2] : reg[rd] );
             break;
+        }
+        }
+    }
+    else if (funct3 == 0x02) //RV32A
+    {
+        switch (atomic_op)
+        {
+        case 0x2: //LR.W
+        {
+            reg[rd] = set_sign_extension(get_mem_w(reg[rs1]),32);
+            reservation = true;
+            break;
+        }
+        case 0x3: //SC.W
+        {
+            if(reservation)
+            {
+                set_mem_w(reg[rs1], (uint32_t)reg[rs2]);
+                reg[rd] = 0;
+            }
+            else
+            {
+                reg[rd] = 1;
+            }
+            reservation = false;
+            break;
+        }
+        case 0x1: //AMOSWP.W
+        {
+            reg[rd] = set_sign_extension(get_mem_w(reg[rs1]),32);
+            set_mem_w(reg[rs1], (uint32_t)reg[rs2]);
+            break;
+        }
+        case 0x0: //AMOADD.W
+        {
+            reg[rd] = set_sign_extension(get_mem_w(reg[rs1]),32);
+            set_mem_w(reg[rs1], (uint32_t)reg[rs2] + (uint32_t)reg[rd]);
+            break;
+        }
+        case 0x4: //AMOXOR.W
+        {
+            reg[rd] = set_sign_extension(get_mem_w(reg[rs1]),32);
+            set_mem_w(reg[rs1], (uint32_t)reg[rs2] ^ (uint32_t)reg[rd]);
+            break;
+            }
+        case 0xc: //AMOAND.W
+        {
+            reg[rd] = set_sign_extension(get_mem_w(reg[rs1]),32);
+            set_mem_w(reg[rs1], (uint32_t)reg[rs2] & (uint32_t)reg[rd]);
+            break;
+        }
+        case 0x8: //AMOOR.W
+        {
+            reg[rd] = set_sign_extension(get_mem_w(reg[rs1]),32);
+            set_mem_w(reg[rs1], (uint32_t)reg[rs2] | (uint32_t)reg[rd]);
+            break;
+        }
+        case 0x10: //AMOMIN.W
+        {
+            reg[rd] = set_sign_extension(get_mem_w(reg[rs1]),32);
+            set_mem_w(reg[rs1], (int32_t)reg[rs2] < (int32_t)reg[rd] ? (uint32_t)reg[rs2] : (uint32_t)reg[rd] );
+            break;
+        }
+        case 0x14: //AMOMAX.W
+        {
+            reg[rd] = set_sign_extension(get_mem_w(reg[rs1]),32);
+            set_mem_w(reg[rs1], (int32_t)reg[rs2] > (int32_t)reg[rd] ? (uint32_t)reg[rs2] : (uint32_t)reg[rd] );
+            break;
+        }
+        case 0x18: //AMOMINU.W
+        {
+            reg[rd] = set_sign_extension(get_mem_w(reg[rs1]),32);
+            set_mem_w(reg[rs1], (uint32_t)reg[rs2] < (uint32_t)reg[rd] ? (uint32_t)reg[rs2] : (uint32_t)reg[rd] );
+            break;
+        }
+        case 0x1c: //AMOMAXU.W
+        {
+            reg[rd] = set_sign_extension(get_mem_w(reg[rs1]),32);
+            set_mem_w(reg[rs1], (uint32_t)reg[rs2] > (uint32_t)reg[rd] ? (uint32_t)reg[rs2] : (uint32_t)reg[rd] );
+            break;
+        }
         }
     }
 }
@@ -1080,4 +1192,70 @@ void ALISS_CPU::Op_M_Type_Ins_Implement(uint32_t insn)
         }
     }
 
+}
+
+void ALISS_CPU::Op_RV64I_M_Type_Ins_Implement(uint32_t insn)
+{
+    riscv_ins m64_type_insn;
+    m64_type_insn.wIns = insn;
+
+    uint8_t rs1 = m64_type_insn.r_Ins.rs1;
+    uint8_t rs2 = m64_type_insn.r_Ins.rs2;
+    uint8_t rd = m64_type_insn.r_Ins.rd;
+    uint8_t funct3 = m64_type_insn.r_Ins.funct3;
+
+    switch (funct3)
+    {
+        case 0x0: //MULW
+        {
+            reg[rd] = set_sign_extension((((int64_t)reg[rs1] * (int64_t)reg[rs2]) & 0xffffffff) , 32);
+            break;
+        }
+        case 0x5: //DIVUW
+        {
+            if(reg[rs2] == 0) //can't div 0
+            {
+                reg[rd] = -1;
+            }
+            else
+            {
+                reg[rd] = set_sign_extension((reg[rs1] & 0xffffffff) / (reg[rs2] & 0xffffffff),32);
+            }
+            break;
+        }
+        case 0x6: //REMW
+        {
+            if(reg[rs2] == 0) //can't div 0
+            {
+                reg[rd] = reg[rs1];
+            }
+            else if((int64_t)reg[rs1] == INT32_MIN && (int64_t)reg[rs2] == -1) // may overflow
+            {
+                reg[rd] = 0;
+            }
+            else
+            {
+                reg[rd] = set_sign_extension(((int32_t)(reg[rs1]  & 0xffffffff)) % ((int32_t)(reg[rs2] & 0xffffffff)),32);
+            }
+            break;
+        }
+        case 0x7: //REMUW
+        {
+            if(reg[rs2] == 0) //can't div 0
+            {
+                reg[rd] = reg[rs1];
+            }
+            else
+            {
+                reg[rd] = set_sign_extension((reg[rs1] & 0xffffffff) % (reg[rs2] & 0xffffffff),32);
+            }
+            break;
+        }
+        default:
+        {
+                printf("Illegal instruction");
+                printf("%x\n",insn);
+                break;
+        }
+    }
 }

@@ -11,7 +11,6 @@
 #include"../include/Ins.h"
 #include"../include/csr.h"
 
-#define INS_DBG
 
 #define BUILD_LEVEL 28
 
@@ -24,6 +23,9 @@ class ALISS_CPU
 private:
     /* data */
 public:
+    /*Debug Mode*/
+    bool Debug_mode;
+    
     /*program counter*/
     uint32_t pc;
     uint32_t next_pc;
@@ -85,6 +87,7 @@ public:
     void Op_Sys_Ins_Implement(uint32_t insn);
     void Op_Atomic_Ins_Implement(uint32_t insn);
     void Op_M_Type_Ins_Implement(uint32_t insn);
+    void Op_RV64I_M_Type_Ins_Implement(uint32_t insn);
 };
 
 #endif

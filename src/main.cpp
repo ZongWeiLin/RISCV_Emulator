@@ -20,10 +20,19 @@ int main(int argc, char** argv)
 		{
 			switch( param[1] )
 			{
-				case 'e': elf_name = (++i < argc) ? argv[i] : 0; break;
-				case 'b': dtb_name = (++i < argc) ? argv[i] : 0; break;
-				case 'h': show_help = 1; break;
-			default:
+				case 'e': 
+					elf_name = (++i < argc) ? argv[i] : 0; 
+				break;
+				case 'b': 
+					dtb_name = (++i < argc) ? argv[i] : 0; 
+				break;
+				case 'd':
+					Simulator.Debug_mode = true;
+				break;
+				case 'h': 
+					show_help = 1; 
+				break;
+				default:
 					std::cout  << "No command " << param[1] << std::endl;
 					show_help = 1;
 				break;
