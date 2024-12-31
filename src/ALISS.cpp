@@ -417,7 +417,7 @@ void ALISS_CPU::Op_I_Type_Implement(uint32_t insn)
     }
     case 0x1: //SLLI
     {
-        uint64_t shamt = imm & 0x1f; //[24:20]
+        uint64_t shamt = imm & 0x3f; //[24:20]
         reg[rd] = reg[rs1] << shamt;
         break;
     }
@@ -503,8 +503,8 @@ void ALISS_CPU::Op_JALR_Ins_Implement(uint32_t insn)
     uint8_t rd = jalr_ins.i_Ins.rd;
     uint64_t offset = jalr_ins.i_Ins.imm;
 
-    reg[rd] = pc + 4;
     next_pc = reg[rs1] + set_sign_extension(offset,12);
+    reg[rd] = pc + 4;
 }
 
 void ALISS_CPU::Op_B_Type_Implement(uint32_t insn)
@@ -768,7 +768,7 @@ void ALISS_CPU::Op_RV64I_R_Type_Ins_Implement(uint32_t insn)
         }
         case 0x1: //SLLW
         {
-            reg[rd] = set_sign_extension((reg[rs1] << reg[rs2])  & 0xffffffff,32);
+            reg[rd] = set_sign_extension((reg[rs1] << (reg[rs2] & 0x1F))  & 0xffffffff,32);
             break;
         }
         case 0x5: //SRLW or SRAW
@@ -777,12 +777,12 @@ void ALISS_CPU::Op_RV64I_R_Type_Ins_Implement(uint32_t insn)
             {
                case 0x0 : //SRLW
                {
-                    reg[rd] =  set_sign_extension((reg[rs1] >> reg[rs2]) &  0xffffffff,32);
+                    reg[rd] =  set_sign_extension((reg[rs1] >> (reg[rs2] & 0x1F)) &  0xffffffff,32);
                     break;
                }
                case 0x20 : //SRAW
                {
-                    reg[rd] = set_sign_extension(((int64_t)reg[rs1] >> reg[rs2]) & 0xffffffff,32);
+                    reg[rd] = set_sign_extension(((int64_t)reg[rs1] >> (reg[rs2] & 0x1F)) & 0xffffffff,32);
                     break;
                }
                default:
@@ -813,7 +813,7 @@ void ALISS_CPU::Op_RV64I_I_Type_Ins_Implement(uint32_t insn)
     uint8_t rd = rv64_i_type_ins.i_Ins.rd;
     uint8_t funct3 = rv64_i_type_ins.i_Ins.funct3;
     uint32_t imm = rv64_i_type_ins.i_Ins.imm;
-    uint8_t shamt = imm & 0x1f;
+    uint8_t shamt = imm & 0x3f;
 
     switch (funct3)
     {
