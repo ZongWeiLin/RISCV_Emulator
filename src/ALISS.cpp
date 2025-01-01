@@ -279,7 +279,7 @@ void ALISS_CPU::Instruction_Decode_Execution_WriteBack(uint32_t insn)
             uint8_t funct7 = n_ins.r_Ins.funct7;
             if (funct7 == 0x01)
             {
-                
+                Op_RV64I_M_Type_Ins_Implement(insn);
             }
             else
             {
