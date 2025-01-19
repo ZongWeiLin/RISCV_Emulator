@@ -63,12 +63,12 @@ int main(int argc, char** argv)
 
 
 #ifndef BAREMETAL
-		// std::cout << dtb_name << std::endl;	
-		// if(Simulator.loadDTB(dtb_name,0x1234) == false)
-		// {
-		// 	std::cout <<"Load DTB Error" << std::endl;
-		// 	return 1;
-		// }
+		std::cout << dtb_name << std::endl;	
+		if(Simulator.loadDTB(dtb_name,0x1234) == false)
+		{
+			std::cout <<"Load DTB Error" << std::endl;
+			return 1;
+		}
 #endif
 	}
 

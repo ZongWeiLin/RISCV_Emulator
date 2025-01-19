@@ -14,9 +14,9 @@
 
 #define BUILD_LEVEL 28
 
-#define BAREMETAL
+// #define BAREMETAL
 
-#define MEMORY_SIZE 64*1024*1024 //64MB
+#define MEMORY_SIZE 4*1024*1024*1024 //4GB
 
 class ALISS_CPU
 {

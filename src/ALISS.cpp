@@ -102,8 +102,44 @@ bool ALISS_CPU::loadElf(const char* filename)
 	return true;
 }
 
-bool loadDTB(const char* filename, uint64_t dtb_addr)
+bool ALISS_CPU::loadDTB(const char* filename, uint64_t dtb_addr)
 {
+    // Open the file
+    FILE* file = fopen(filename, "rb");
+    if (file == NULL) {
+        perror("Failed to open the file");
+        exit(EXIT_FAILURE);
+    }
+
+    // Get the file size
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    rewind(file);
+
+    // Allocate memory to store the file content
+    uint8_t* file_data = (uint8_t*)malloc(file_size);
+    if (file_data == NULL) {
+        perror("Memory allocation failed");
+        fclose(file);
+        exit(EXIT_FAILURE);
+    }
+
+    // Read the file content
+    size_t bytes_read = fread(file_data, 1, file_size, file);
+    if (bytes_read != file_size) {
+        perror("Failed to read the file");
+        free(file_data);
+        fclose(file);
+        exit(EXIT_FAILURE);
+    }
+
+    // Use memcpy to copy the file content into memory
+    memcpy(memory + dtb_addr, file_data, file_size);
+
+    // Close the file and free memory
+    fclose(file);
+    free(file_data);
+
     return true;
 }
 
